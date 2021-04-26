@@ -30,6 +30,10 @@ then
 	rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
 	cd ..
 
+else 
+	echo 'no problem'
+fi
+
 
 
 
@@ -43,4 +47,3 @@ cd o`echo $$`
 
 cp -R /home/mms496/StyleVAE_Experiments/stylegan/output .
 rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
-
