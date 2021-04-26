@@ -10,6 +10,7 @@ module load cuDNN/cuda10.0
 
 source /home/mms496/.bashrc
 
+rm -rf /local/mms496
 mkdir -p /local/mms496/stylegan
 
 cd /local/mms496/stylegan
