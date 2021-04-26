@@ -16,7 +16,7 @@ cd /local/mms496/stylegan
 cp -R /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch .
 
 
-python -u train.py --start_depth 5 --config /stylegan/configs/sample_ffhq_128.yaml
+python -u StyleGAN.pytorch/train.py --start_depth 5 --config /StyleGAN.pytorch/configs/sample_ffhq_128.yaml
 
 wait          # wait until programs are finished
 
@@ -26,5 +26,5 @@ echo $$
 mkdir o`echo $$`
 cd o`echo $$`
 
-cp -R /local/mms496/stylegan .
+cp -R /local/mms496/StyleGAN.pytorch .
 rm -rf /local/mms496
