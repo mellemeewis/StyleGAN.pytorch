@@ -13,10 +13,16 @@ source /home/mms496/.bashrc
 mkdir -p /local/mms496/stylegan
 
 cd /local/mms496/stylegan
+pwd
+ls -a
 cp -R /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch .
+echo 'copied'
+pwd
+ls -a
 
 
-python -u StyleGAN.pytorch/train.py --start_depth 5 --config /StyleGAN.pytorch/configs/sample_ffhq_128.yaml
+
+python -u StyleGAN.pytorch/train.py --start_depth 5 --config StyleGAN.pytorch/configs/sample_ffhq_128.yaml
 
 wait          # wait until programs are finished
 
