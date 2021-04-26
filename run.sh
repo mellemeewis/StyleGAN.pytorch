@@ -43,3 +43,4 @@ cd o`echo $$`
 
 cp -R /home/mms496/StyleVAE_Experiments/stylegan/output .
 rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
+
