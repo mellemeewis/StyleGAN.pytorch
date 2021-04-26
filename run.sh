@@ -28,7 +28,7 @@ fi
 
 
 
-python -u code/StyleGAN.pytorch/train.py --start_depth 5 --config code/StyleGAN.pytorch/configs/sample_ffhq_128.yaml
+python -u /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch/train.py --start_depth 5 --config code/StyleGAN.pytorch/configs/sample_ffhq_128.yaml
 
 wait          # wait until programs are finished
 
