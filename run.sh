@@ -10,16 +10,7 @@ module load cuDNN/cuda10.0
 
 source /home/mms496/.bashrc
 
-# rm -rf /local/mms496
-# mkdir -p /local/mms496/stylegan
-
-# cd /local/mms496/stylegan
-# pwd
-# ls -a
-# cp -R /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch .
-# echo 'copied'
-# pwd
-# ls -a
+cd /home/mms496/StyleVAE_Experiments/stylegan
 
 if [ -d "/home/mms496/StyleVAE_Experiments/stylegan/output" ] 
 then
@@ -28,7 +19,7 @@ then
 	cd oo`echo $$` 
 	cp -R /home/mms496/StyleVAE_Experiments/stylegan/output .
 	rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
-	cd ..
+	cd /home/mms496/StyleVAE_Experiments/stylegan
 
 else 
 	echo 'no problem'
