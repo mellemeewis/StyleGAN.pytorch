@@ -10,4 +10,4 @@ dataset:
   folder: True
   resolution: 128
 sched:
-  epochs: [8,16,32,32,64,64]
+  epochs: [8,16,32,32,64,1]
