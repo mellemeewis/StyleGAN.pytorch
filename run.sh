@@ -20,7 +20,8 @@ python -u StyleGAN.pytorch/train.py --start_depth 5 --config /StyleGAN.pytorch/c
 
 wait          # wait until programs are finished
 
-cd /home/mms496/StyleVAE_experiments/stylegan
+cd /home/mms496/StyleVAE_Experiments/stylegan
+
 
 echo $$
 mkdir o`echo $$`
