@@ -10,29 +10,36 @@ module load cuDNN/cuda10.0
 
 source /home/mms496/.bashrc
 
-rm -rf /local/mms496
-mkdir -p /local/mms496/stylegan
+# rm -rf /local/mms496
+# mkdir -p /local/mms496/stylegan
 
-cd /local/mms496/stylegan
-pwd
-ls -a
-cp -R /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch .
-echo 'copied'
-pwd
-ls -a
+# cd /local/mms496/stylegan
+# pwd
+# ls -a
+# cp -R /home/mms496/StyleVAE_Experiments/code/StyleGAN.pytorch .
+# echo 'copied'
+# pwd
+# ls -a
+
+if [ -d "/home/mms496/StyleVAE_Experiments/stylegan/output" ] 
+then
+    echo $$
+	mkdir oo`echo $$`
+	cd oo`echo $$` 
+	cp -R /home/mms496/StyleVAE_Experiments/stylegan/output .
+	rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
+	cd ..
 
 
 
-python -u StyleGAN.pytorch/train.py --start_depth 5 --config StyleGAN.pytorch/configs/sample_ffhq_128.yaml
+
+python -u code/StyleGAN.pytorch/train.py --start_depth 5 --config code/StyleGAN.pytorch/configs/sample_ffhq_128.yaml
 
 wait          # wait until programs are finished
-
-cd /home/mms496/StyleVAE_Experiments/stylegan
-
 
 echo $$
 mkdir o`echo $$`
 cd o`echo $$`
 
-cp -R /local/mms496/StyleGAN.pytorch .
-rm -rf /local/mms496
+cp -R /home/mms496/StyleVAE_Experiments/stylegan/output .
+rm -rf /home/mms496/StyleVAE_Experiments/stylegan/output
