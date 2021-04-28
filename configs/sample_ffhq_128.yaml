@@ -1,10 +1,11 @@
 # Config file for CelebA dataset (200k)
 
 output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output/'
-structure: 'linear'
+structure: 'fixed'
 device_id: ('0')
-checkpoint_factor: 1
-feedback_factor: 2
+checkpoint_factor: 0
+feedback_factor: 10
+use_ema: False
 dataset:
   img_dir: '/var/scratch/mms496/data/ffhq/full/thumbnails128x128'
   folder: True

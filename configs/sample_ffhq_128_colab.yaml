@@ -4,11 +4,12 @@ output_dir: '/content/output/ffhq'
 structure: 'linear'
 device_id: ('0')
 use_ema: False
-checkpoint_factor: 1
-feedback_factor: 2
+checkpoint_factor: 0
+feedback_factor: 10
 dataset:
   img_dir: '/content/drive/MyDrive/datasets/ffhq'
   folder: True
   resolution: 128
 sched:
   epochs: [8,16,32,32,64,300]
+
