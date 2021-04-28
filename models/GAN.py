@@ -677,12 +677,12 @@ class StyleGAN:
 
                     # GAN INPUT = ENCODER(INPUT)
                     gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
-                    noise = (torch.randn(images.shape[0], 1, current_res//32, current_res//32).to(self.device),
-                                torch.randn(images.shape[0], 1, current_res//16, current_res//16).to(self.device),
-                                torch.randn(images.shape[0], 1, current_res//8, current_res//8).to(self.device),
-                                torch.randn(images.shape[0], 1, current_res//4, current_res//4).to(self.device),
-                                torch.randn(images.shape[0], 1, current_res//2, current_res//2).to(self.device),
-                                torch.randn(images.shape[0], 1, current_res, current_res).to(self.device))
+                    noise = (torch.randn(images.shape[0], 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
+                                torch.randn(images.shape[0], 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
+                                torch.randn(images.shape[0], 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
+                                torch.randn(images.shape[0], 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
+                                torch.randn(images.shape[0], 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
+                                torch.randn(images.shape[0], 1, self.output_resolution, self.output_resolution).to(self.device))
 
                     # print(noise)
                     # optimize the discriminator:
