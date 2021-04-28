@@ -12,6 +12,7 @@ import numpy as np
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import math
 
 
@@ -62,25 +63,25 @@ class GANLoss:
                 continue
 
             b, c, h, w = n.size()
-            print(n.size())
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
-            print(mean.size(), sig.size())
             kl += 0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1)
 
         return kl.mean().to(latent.device)
 
     def reconstruction_loss(self, output, target):
-        b, c, w, h = output.size()
-        mus = output
-        VARMULT = 1e-5
-        EPS = 1e-5
+        # b, c, w, h = output.size()
+        # mus = output
+        # VARMULT = 1e-5
+        # EPS = 1e-5
 
-        sgs, lsgs  = torch.exp(output * VARMULT), output * VARMULT
-        lny = torch.log(target + EPS)
-        ln1y = torch.log(1 - target + EPS)
-        x = lny - ln1y
-        rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
+        # sgs, lsgs  = torch.exp(output * VARMULT), output * VARMULT
+        # lny = torch.log(target + EPS)
+        # ln1y = torch.log(1 - target + EPS)
+        # x = lny - ln1y
+        # rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
+
+        rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
 
         return rec.mean().to(output.device)
 
