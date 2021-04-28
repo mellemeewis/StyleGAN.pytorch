@@ -696,7 +696,8 @@ class StyleGAN:
 
                     z, n0, n1, n2, n3, n4, n5 = self.encoder(images, current_depth)
                     noise = (n0, n1, n2, n3, n4, n5)
-
+                    for n in noise:
+                        print(n.size())
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(z, noise, images, current_depth, alpha)
 
