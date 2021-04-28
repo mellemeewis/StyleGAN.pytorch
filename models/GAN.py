@@ -575,7 +575,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator_and_encoder(self, latents, noise, real_batch, depth, alpha):
+    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -590,11 +590,11 @@ class StyleGAN:
         recon_target = real_samples
         # generate reconstruction:
         # print("OPTIM GENERATOR \n", noise)
-        reconstruction = self.gen(latents, noise, depth, alpha)
+        reconstruction = self.gen(z, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
-        kl_loss = self.loss.kl_loss(latents, noise)
+        kl_loss = self.loss.kl_loss(z_distr, noise_distr)
         adverserial_loss = self.loss.gen_loss(real_samples, reconstruction, depth, alpha)
 
         loss = recon_loss + kl_loss + adverserial_loss
@@ -719,15 +719,15 @@ class StyleGAN:
                     # extract current batch of data for training
                     images = batch.to(self.device)
 
-                    z, noise = self.encoder(images, current_depth)
+                    z_distr, noise_distr = self.encoder(images, current_depth)
 
-                    zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)
+                    zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(zsample, noise_sample[::-1], images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
