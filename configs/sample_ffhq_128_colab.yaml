@@ -1,6 +1,6 @@
 # Config file for CelebA dataset (200k)
 
-output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output/'
+output_dir: '/content/output/ffhq'
 structure: 'linear'
 device_id: ('0')
 checkpoint_factor: 1
