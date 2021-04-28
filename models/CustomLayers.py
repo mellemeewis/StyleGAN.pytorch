@@ -224,8 +224,6 @@ class LayerEpilogue(nn.Module):
         super().__init__()
 
         layers = []
-        if use_noise:
-            layers.append(('noise', NoiseLayer(channels)))
         layers.append(('activation', activation_layer))
         if use_pixel_norm:
             layers.append(('pixel_norm', PixelNormLayer()))
@@ -239,7 +237,15 @@ class LayerEpilogue(nn.Module):
         else:
             self.style_mod = None
 
-    def forward(self, x, dlatents_in_slice=None):
+        if use_noise:
+            self.noise = NoiseLayer(channels)
+        else:
+            self.noise = None
+
+    def forward(self, x, noise, dlatents_in_slice=None):
+        if self.noise is not None:
+            x = self.noise(x, noise=noise)
+
         x = self.top_epi(x)
         if self.style_mod is not None:
             x = self.style_mod(x, dlatents_in_slice)

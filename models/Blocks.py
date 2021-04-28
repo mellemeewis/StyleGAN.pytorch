@@ -80,11 +80,11 @@ class GSynthesisBlock(nn.Module):
         self.epi2 = LayerEpilogue(out_channels, dlatent_size, use_wscale, use_noise, use_pixel_norm, use_instance_norm,
                                   use_styles, activation_layer)
 
-    def forward(self, x, dlatents_in_range):
+    def forward(self, x, dlatents_in_range, noise):
         x = self.conv0_up(x)
-        x = self.epi1(x, dlatents_in_range[:, 0])
+        x = self.epi1(x, noise, dlatents_in_range[:, 0])
         x = self.conv1(x)
-        x = self.epi2(x, dlatents_in_range[:, 1])
+        x = self.epi2(x, noise, dlatents_in_range[:, 1])
         return x
 
 

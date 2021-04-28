@@ -168,7 +168,7 @@ class GSynthesis(nn.Module):
         # register the temporary upsampler
         self.temporaryUpsampler = lambda x: interpolate(x, scale_factor=2)
 
-    def forward(self, dlatents_in, depth=0, alpha=0., labels_in=None):
+    def forward(self, dlatents_in, noise, depth=0, alpha=0., labels_in=None):
         """
             forward pass of the Generator
             :param dlatents_in: Input: Disentangled latents (W) [mini_batch, num_layers, dlatent_size].
@@ -179,18 +179,19 @@ class GSynthesis(nn.Module):
         """
 
         assert depth < self.depth, "Requested output depth cannot be produced"
+        assert len(noise) == len(self.blocks) "Number of noise tensors does not correspond with state of model."
 
         if self.structure == 'fixed':
             x = self.init_block(dlatents_in[:, 0:2])
             for i, block in enumerate(self.blocks):
-                x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)])
+                x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
             images_out = self.to_rgb[-1](x)
         elif self.structure == 'linear':
             x = self.init_block(dlatents_in[:, 0:2])
 
             if depth > 0:
                 for i, block in enumerate(self.blocks[:depth - 1]):
-                    x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)])
+                    x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
 
                 residual = self.to_rgb[depth - 1](self.temporaryUpsampler(x))
                 straight = self.to_rgb[depth](self.blocks[depth - 1](x, dlatents_in[:, 2 * depth:2 * (depth + 1)]))
@@ -240,7 +241,7 @@ class Generator(nn.Module):
         else:
             self.truncation = None
 
-    def forward(self, latents_in, depth, alpha, labels_in=None):
+    def forward(self, latents_in, noise, depth, alpha, labels_in=None):
         """
         :param latents_in: First input: Latent vectors (Z) [mini_batch, latent_size].
         :param depth: current depth from where output is required
@@ -272,7 +273,7 @@ class Generator(nn.Module):
             if self.truncation is not None:
                 dlatents_in = self.truncation(dlatents_in)
 
-        fake_images = self.g_synthesis(dlatents_in, depth, alpha)
+        fake_images = self.g_synthesis(dlatents_in, noise, depth, alpha)
 
         return fake_images
 
@@ -534,7 +535,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator(self, noise, real_batch, depth, alpha):
+    def optimize_generator(self, latents, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -548,7 +549,7 @@ class StyleGAN:
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
 
         # generate fake samples:
-        fake_samples = self.gen(noise, depth, alpha)
+        fake_samples = self.gen(latents, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
         loss = self.loss.gen_loss(real_samples, fake_samples, depth, alpha)
@@ -659,13 +660,15 @@ class StyleGAN:
 
                     # extract current batch of data for training
                     images = batch.to(self.device)
-                    gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
 
+                    GAN INPUT = ENCODER(INPUT)
+                    gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
+                    noise = torch.randn("BLABLA")
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(gan_input, images, current_depth, alpha)
 
                     # optimize the generator:
-                    gen_loss = self.optimize_generator(gan_input, images, current_depth, alpha)
+                    gen_loss = self.optimize_generator(gan_input, noise, images, current_depth, alpha)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
