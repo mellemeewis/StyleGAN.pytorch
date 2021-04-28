@@ -746,7 +746,7 @@ class StyleGAN:
 
                             z, noise = self.encoder(images, current_depth)
                             zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)      
-                            reconstruction = self.gen(z, noise[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(z, noise[::-1], current_depth, alpha).detach()
+                            reconstruction = self.gen(zzsample, noise_sample[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(z, noise[::-1], current_depth, alpha).detach()
                             self.create_grid(
                                 samples=torch.cat([images, reconstruction]),
                                 scale_factor=int(
