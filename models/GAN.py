@@ -501,6 +501,7 @@ class StyleGAN:
         sample_noise = []
         for n in noise:
             b, c, h, w = n.size()
+            print(b,c,h,w)
 
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
