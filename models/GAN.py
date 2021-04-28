@@ -508,7 +508,7 @@ class StyleGAN:
             eps = torch.randn(b, c//2, h, w).view(b, -1).to(zmean.device)
             eps = Variable(eps)
             sample_n = mean + eps * (sig * 0.5).exp()
-            sample_noise.append(sample_n)
+            sample_noise.append(sample_n.view(b, c//2, h, w))
 
         return zsample, sample_noise
 
