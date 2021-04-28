@@ -178,12 +178,15 @@ class GSynthesis(nn.Module):
             :return: y => output
         """
 
+        print("\nGSynthesis\n", noise)
+
         assert depth < self.depth, "Requested output depth cannot be produced"
         assert len(noise) == len(self.blocks) "Number of noise tensors does not correspond with state of model."
 
         if self.structure == 'fixed':
             x = self.init_block(dlatents_in[:, 0:2])
             for i, block in enumerate(self.blocks):
+                print("\n\nBLOCK {i}:\n", noise[i])
                 x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
             images_out = self.to_rgb[-1](x)
         elif self.structure == 'linear':
@@ -191,6 +194,7 @@ class GSynthesis(nn.Module):
 
             if depth > 0:
                 for i, block in enumerate(self.blocks[:depth - 1]):
+                    print("\n\nBLOCK {i}:\n", noise[i])
                     x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
 
                 residual = self.to_rgb[depth - 1](self.temporaryUpsampler(x))
@@ -249,6 +253,7 @@ class Generator(nn.Module):
         :param labels_in: Second input: Conditioning labels [mini_batch, label_size].
         :return:
         """
+        print('GENERATOR\n', noise)
 
         dlatents_in = self.g_mapping(latents_in)
 
@@ -522,7 +527,7 @@ class StyleGAN:
         loss_val = 0
         for _ in range(self.d_repeats):
             # generate a batch of samples
-            fake_samples = self.gen(noise, depth, alpha).detach()
+            fake_samples = self.gen(latents, noise, depth, alpha).detach()
 
             loss = self.loss.dis_loss(real_samples, fake_samples, depth, alpha)
 
@@ -549,6 +554,7 @@ class StyleGAN:
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
 
         # generate fake samples:
+        print("OPTIM GENERATOR \n", noise)
         fake_samples = self.gen(latents, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
@@ -663,9 +669,16 @@ class StyleGAN:
 
                     GAN INPUT = ENCODER(INPUT)
                     gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
-                    noise = torch.randn("BLABLA")
+                    noise = (torch.randn(images.shape[0], 1, current_res/32, current_res/32).to(self.device),
+                                torch.randn(images.shape[0], 1, current_res/16, current_res/16).to(self.device),
+                                torch.randn(images.shape[0], 1, current_res/8, current_res/8).to(self.device),
+                                torch.randn(images.shape[0], 1, current_res/4, current_res/4).to(self.device),
+                                torch.randn(images.shape[0], 1, current_res/2, current_res/2).to(self.device),
+                                torch.randn(images.shape[0], 1, current_res, current_res).to(self.device))
+
+                    print(noise)
                     # optimize the discriminator:
-                    dis_loss = self.optimize_discriminator(gan_input, images, current_depth, alpha)
+                    dis_loss = self.optimize_discriminator(gan_input, noise, images, current_depth, alpha)
 
                     # optimize the generator:
                     gen_loss = self.optimize_generator(gan_input, noise, images, current_depth, alpha)
