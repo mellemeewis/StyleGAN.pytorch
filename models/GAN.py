@@ -185,18 +185,18 @@ class GSynthesis(nn.Module):
         assert len(noise) == len(self.blocks) + 1, "Number of noise tensors does not correspond with state of model."
 
         if self.structure == 'fixed':
-            x = self.init_block(dlatents_in[:, 0:2], noise)
+            x = self.init_block(dlatents_in[:, 0:2], noise[0])
             for i, block in enumerate(self.blocks):
                 print("\n\nBLOCK {i}:\n", noise[i+1])
-                x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
+                x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i+1])
             images_out = self.to_rgb[-1](x)
         elif self.structure == 'linear':
-            x = self.init_block(dlatents_in[:, 0:2])
+            x = self.init_block(dlatents_in[:, 0:2], noise[0])
 
             if depth > 0:
                 for i, block in enumerate(self.blocks[:depth - 1]):
                     print("\n\nBLOCK {i}:\n", noise[i+1])
-                    x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
+                    x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i+1])
 
                 residual = self.to_rgb[depth - 1](self.temporaryUpsampler(x))
                 straight = self.to_rgb[depth](self.blocks[depth - 1](x, dlatents_in[:, 2 * depth:2 * (depth + 1)]))
