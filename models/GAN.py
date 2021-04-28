@@ -442,7 +442,7 @@ class StyleGAN:
         # define the optimizers for the discriminator and generator
         self.__setup_gen_optim(**g_opt_args)
         self.__setup_dis_optim(**d_opt_args)
-        self.__setup_endoer_optim(**e_opt_args)
+        self.__setup_encoder_optim(**e_opt_args)
 
         # define the loss function used for training the GAN
         self.drift = drift
