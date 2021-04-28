@@ -722,12 +722,12 @@ class StyleGAN:
                     z, noise = self.encoder(images, current_depth)
 
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)
-      
+
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(zsample, noise_sample, images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
@@ -743,8 +743,10 @@ class StyleGAN:
                                                     + "_" + str(epoch) + "_" + str(i) + ".png")
 
                         with torch.no_grad():
-                            z, n0, n1, n2, n3, n4, n5 = self.encoder(images); noise = (n0, n1, n2, n3, n4, n5)
-                            reconstruction = self.gen(z, noise, current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(z, noise, current_depth, alpha).detach()
+
+                            z, noise = self.encoder(images, current_depth)
+                            zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)      
+                            reconstruction = self.gen(z, noise[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(z, noise[::-1], current_depth, alpha).detach()
                             self.create_grid(
                                 samples=torch.cat([images, reconstruction]),
                                 scale_factor=int(
