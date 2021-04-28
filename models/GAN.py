@@ -575,7 +575,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator(self, latents, noise, real_batch, depth, alpha):
+    def optimize_generator_and_encoder(self, latents, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -722,10 +722,7 @@ class StyleGAN:
                     z, noise = self.encoder(images, current_depth)
 
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)
-                    for n in noise_sample:
-                        print(n.size())
-                    for n in noise_sample[::-1]:
-                        print(n.size())
+      
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
 
