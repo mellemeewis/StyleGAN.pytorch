@@ -562,27 +562,36 @@ class StyleGAN:
         """
 
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
-
-        # generate fake samples:
+        recon_target = real_samples
+        # generate reconstruction:
         # print("OPTIM GENERATOR \n", noise)
-        fake_samples = self.gen(latents, noise, depth, alpha)
+        reconstruction = self.gen(latents, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
-        loss = self.loss.gen_loss(real_samples, fake_samples, depth, alpha)
+        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
+        kl_loss = self.loss.kl_loss(latents, noise)
+        adverserial_loss = self.loss.gen_loss(real_samples, reconstruction, depth, alpha)
 
-        # optimize the generator
+        loss = recon_loss + kl_loss + adverserial_loss
+
+        # optimize the generator and encoder
         self.gen_optim.zero_grad()
+        self.encoder_optim.zero_grad()
         loss.backward()
         # Gradient Clipping
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=10.)
+        nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=10.)
+
         self.gen_optim.step()
+        self.encoder_optim.step()
 
         # if use_ema is true, apply ema to the generator parameters
         if self.use_ema:
             self.ema_updater(self.gen_shadow, self.gen, self.ema_decay)
 
         # return the loss value
-        return loss.item()
+        return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
+
 
     @staticmethod
     def create_grid(samples, scale_factor, img_file):
@@ -635,6 +644,8 @@ class StyleGAN:
         # turn the generator and discriminator into train mode
         self.gen.train()
         self.dis.train()
+        self.encoder.train()
+
         if self.use_ema:
             self.gen_shadow.train()
 
@@ -683,29 +694,22 @@ class StyleGAN:
                     # extract current batch of data for training
                     images = batch.to(self.device)
 
-                    # GAN INPUT = ENCODER(INPUT)
-                    gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
-                    noise = (torch.randn(images.shape[0], 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
-                                torch.randn(images.shape[0], 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
-                                torch.randn(images.shape[0], 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
-                                torch.randn(images.shape[0], 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
-                                torch.randn(images.shape[0], 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
-                                torch.randn(images.shape[0], 1, self.output_resolution, self.output_resolution).to(self.device))
+                    z, n0, n1, n2, n3, n4, n5 = self.encoder(images)
+                    noise = (n0, n1, n2, n3, n4, n5)
 
-                    # print(noise)
                     # optimize the discriminator:
-                    dis_loss = self.optimize_discriminator(gan_input, noise, images, current_depth, alpha)
+                    dis_loss = self.optimize_discriminator(z, noise, images, current_depth, alpha)
 
                     # optimize the generator:
-                    gen_loss = self.optimize_generator(gan_input, noise, images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z, noise, images, current_depth, alpha)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
                         elapsed = time.time() - global_time
                         elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                         logger.info(
-                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  G_Loss: %f"
-                            % (elapsed, step, i, dis_loss, gen_loss))
+                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
+                            % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss))
 
                         # create a grid of samples and save it
                         os.makedirs(os.path.join(output, 'samples'), exist_ok=True)
@@ -713,9 +717,10 @@ class StyleGAN:
                                                     + "_" + str(epoch) + "_" + str(i) + ".png")
 
                         with torch.no_grad():
+                            z, n0, n1, n2, n3, n4, n5 = self.encoder(images); noise = (n0, n1, n2, n3, n4, n5)
+                            reconstruction = self.gen(z, noise, current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(z, noise, current_depth, alpha).detach()
                             self.create_grid(
-                                samples=self.gen(fixed_input, fixed_noise, current_depth, alpha).detach() if not self.use_ema
-                                else self.gen_shadow(fixed_input, fixed_noise, current_depth, alpha).detach(),
+                                samples=torch.cat([images, reconstruction]),
                                 scale_factor=int(
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
@@ -733,17 +738,25 @@ class StyleGAN:
                     os.makedirs(save_dir, exist_ok=True)
                     gen_save_file = os.path.join(save_dir, "GAN_GEN_" + str(current_depth) + "_" + str(epoch) + ".pth")
                     dis_save_file = os.path.join(save_dir, "GAN_DIS_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                    enc_save_file = os.path.join(save_dir, "GAN_ENC_" + str(current_depth) + "_" + str(epoch) + ".pth")
+
                     gen_optim_save_file = os.path.join(
                         save_dir, "GAN_GEN_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
                     dis_optim_save_file = os.path.join(
                         save_dir, "GAN_DIS_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                    enc_optim_save_file = os.path.join(
+                        save_dir, "GAN_ENC_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
 
-                    torch.save(self.gen.state_dict(), gen_save_file)
+
                     logger.info("Saving the model to: %s\n" % gen_save_file)
+                    torch.save(self.gen.state_dict(), gen_save_file)
                     torch.save(self.dis.state_dict(), dis_save_file)
+                    torch.save(self.encoder.state_dict(), dis_save_file)
+
                     torch.save(self.gen_optim.state_dict(), gen_optim_save_file)
                     torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
-
+                    torch.save(self.encoder_optim.state_dict(), dis_optim_save_file)
+                    
                     # also save the shadow generator if use_ema is True
                     if self.use_ema:
                         gen_shadow_save_file = os.path.join(

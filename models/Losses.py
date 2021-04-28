@@ -51,6 +51,36 @@ class GANLoss:
         """
         raise NotImplementedError("gen_loss method has not been implemented")
 
+    def kl_loss(self, latent, noise):
+        b, l = zmean.size()
+        zmean, zslig = latent[:, :l//2], latent[:, l//2:]
+        kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
+
+        for i, n in enumerate(noise):
+            if n is None:
+                continue
+
+            b, c, h, w = n.size()
+            mean = z[:, :c//2, :, :].view(b, -1)
+            sig = z[:, c//2:, :, :].view(b, -1)
+
+            kl += 0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1)
+
+        return kl.mean().to(latent.device)
+
+    def reconstruction_loss(self, output, target):
+        b, c, w, h = output.size()
+        mus = output[:, :1, :, :]
+        VARMULT = 1e-5
+        EPS = 1e-5
+
+        sgs, lsgs  = torch.exp(output[:, c//2:, :, :] * VARMULT), output[:, c//2:, :, :] * VARMULT
+        lny = torch.log(target + EPS)
+        ln1y = torch.log(1 - target + EPS)
+        x = lny - ln1y
+        rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
+
+        return rec.mean().to(output.device)
 
 class ConditionalGANLoss:
     """ Base class for all conditional losses """
