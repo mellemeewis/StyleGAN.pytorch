@@ -3,6 +3,7 @@
 output_dir: '/content/output/ffhq'
 structure: 'linear'
 device_id: ('0')
+use_ema: False
 checkpoint_factor: 1
 feedback_factor: 2
 dataset:
