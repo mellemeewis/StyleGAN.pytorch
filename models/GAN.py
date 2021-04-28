@@ -694,7 +694,7 @@ class StyleGAN:
                     # extract current batch of data for training
                     images = batch.to(self.device)
 
-                    z, n0, n1, n2, n3, n4, n5 = self.encoder(images)
+                    z, n0, n1, n2, n3, n4, n5 = self.encoder(images, current_depth)
                     noise = (n0, n1, n2, n3, n4, n5)
 
                     # optimize the discriminator:
@@ -756,7 +756,7 @@ class StyleGAN:
                     torch.save(self.gen_optim.state_dict(), gen_optim_save_file)
                     torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
                     torch.save(self.encoder_optim.state_dict(), dis_optim_save_file)
-                    
+
                     # also save the shadow generator if use_ema is True
                     if self.use_ema:
                         gen_shadow_save_file = os.path.join(
