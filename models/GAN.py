@@ -500,6 +500,8 @@ class StyleGAN:
         ## Sample noise
         sample_noise = []
         for n in noise:
+            b, c, h, w = n.size()
+
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             eps = torch.randn(b, c//2, h, w).view(b, -1).to(zmean.device)
