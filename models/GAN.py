@@ -199,7 +199,7 @@ class GSynthesis(nn.Module):
                     x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i+1])
 
                 residual = self.to_rgb[depth - 1](self.temporaryUpsampler(x))
-                straight = self.to_rgb[depth](self.blocks[depth - 1](x, dlatents_in[:, 2 * depth:2 * (depth + 1)], noise[i+1]))
+                straight = self.to_rgb[depth](self.blocks[depth - 1](x, dlatents_in[:, 2 * depth:2 * (depth + 1)], noise[-1]))
 
                 images_out = (alpha * straight) + ((1 - alpha) * residual)
             else:
