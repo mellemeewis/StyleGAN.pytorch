@@ -31,12 +31,12 @@ class StyleEncoder(nn.Module):
         self.block4 = EncoderBlock(c3, c4, kernel_size=k, batch_norm=batch_norm)
         self.block5 = EncoderBlock(c4, c5, kernel_size=k, batch_norm=batch_norm)
 
-        self.affine0 = nn.Linear(util.prod(in_size), 2 * zs)
-        self.affine1 = nn.Linear(util.prod((c1, h//2, w//2)), 2 * zs)
-        self.affine2 = nn.Linear(util.prod((c2, h//4, w//4)), 2 * zs)
-        self.affine3 = nn.Linear(util.prod((c3, h//8, w//8)), 2 * zs)
-        self.affine4 = nn.Linear(util.prod((c4, h//16, w//16)), 2 * zs)
-        self.affine5 = nn.Linear(util.prod((c5, h//32, w//32)), 2 * zs)
+        self.affine0 = nn.Linear(prod(in_size), 2 * zs)
+        self.affine1 = nn.Linear(prod((c1, h//2, w//2)), 2 * zs)
+        self.affine2 = nn.Linear(prod((c2, h//4, w//4)), 2 * zs)
+        self.affine3 = nn.Linear(prod((c3, h//8, w//8)), 2 * zs)
+        self.affine4 = nn.Linear(prod((c4, h//16, w//16)), 2 * zs)
+        self.affine5 = nn.Linear(prod((c5, h//32, w//32)), 2 * zs)
 
         self.affinez = nn.Linear(12 * zs, 2 * zs)
 
@@ -150,3 +150,11 @@ class StyleEncoder(nn.Module):
         z = z.sum(dim=1)
         z = self.unmapping(z)
         return z, n0, n1, n2, n3, n4, n5
+
+def prod(xs):
+    res = 1
+
+    for x in xs:
+        res *= x
+
+    return res
