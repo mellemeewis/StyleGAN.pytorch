@@ -62,6 +62,7 @@ class GANLoss:
                 continue
 
             b, c, h, w = n.size()
+            print(n.size())
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             print(mean.size(), sig.size())
