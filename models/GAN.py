@@ -413,6 +413,7 @@ class StyleGAN:
 
         # state of the object
         assert structure in ['fixed', 'linear']
+        self.output_resolution = resolution
         self.structure = structure
         self.depth = int(np.log2(resolution)) - 1
         self.latent_size = latent_size
@@ -634,12 +635,12 @@ class StyleGAN:
 
         # create fixed_input for debugging
         fixed_input = torch.randn(num_samples, self.latent_size).to(self.device)
-        fixed_noise = (torch.randn(num_samples, 1, current_res//32, current_res//32).to(self.device),
-                                torch.randn(num_samples, 1, current_res//16, current_res//16).to(self.device),
-                                torch.randn(num_samples, 1, current_res//8, current_res//8).to(self.device),
-                                torch.randn(num_samples, 1, current_res//4, current_res//4).to(self.device),
-                                torch.randn(num_samples, 1, current_res//2, current_res//2).to(self.device),
-                                torch.randn(num_samples, 1, current_res, current_res).to(self.device))
+        fixed_noise = (torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution, self.output_resolution).to(self.device))
 
         # config depend on structure
         logger.info("Starting the training process ... \n")
