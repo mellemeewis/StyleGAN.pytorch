@@ -88,7 +88,7 @@ if __name__ == '__main__':
                          d_args=opt.model.dis,
                          g_opt_args=opt.model.g_optim,
                          d_opt_args=opt.model.d_optim,
-                         e_opt_args=opt.model.e_otpim,
+                         e_opt_args=opt.model.e_optim,
                          loss=opt.loss,
                          drift=opt.drift,
                          d_repeats=opt.d_repeats,
