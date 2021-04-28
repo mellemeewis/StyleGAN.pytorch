@@ -435,7 +435,7 @@ class StyleGAN:
                                  **d_args).to(self.device)
         print(num_channels, resolution, resolution)
         # in_size = nim
-        self.encoder = StyleEncoder((num_channels, resolution, resolution), channels, zchannels, zs=256, k=3, unmapping=8, batch_norm=False, z_dropout=0.25
+        self.encoder = StyleEncoder((num_channels, resolution, resolution), channels, zchannels)
         sys.exit(0)
         # if code is to be run on GPU, we can use DataParallel:
         # TODO
