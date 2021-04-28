@@ -182,12 +182,12 @@ class GSynthesis(nn.Module):
 
         assert depth < self.depth, "Requested output depth cannot be produced"
         print(len(noise), len(self.blocks))
-        assert len(noise) == len(self.blocks), "Number of noise tensors does not correspond with state of model."
+        assert len(noise) == len(self.blocks) + 1, "Number of noise tensors does not correspond with state of model."
 
         if self.structure == 'fixed':
-            x = self.init_block(dlatents_in[:, 0:2])
+            x = self.init_block(dlatents_in[:, 0:2], noise)
             for i, block in enumerate(self.blocks):
-                print("\n\nBLOCK {i}:\n", noise[i])
+                print("\n\nBLOCK {i}:\n", noise[i+1])
                 x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
             images_out = self.to_rgb[-1](x)
         elif self.structure == 'linear':
@@ -195,7 +195,7 @@ class GSynthesis(nn.Module):
 
             if depth > 0:
                 for i, block in enumerate(self.blocks[:depth - 1]):
-                    print("\n\nBLOCK {i}:\n", noise[i])
+                    print("\n\nBLOCK {i}:\n", noise[i+1])
                     x = block(x, dlatents_in[:, 2 * (i + 1):2 * (i + 2)], noise[i])
 
                 residual = self.to_rgb[depth - 1](self.temporaryUpsampler(x))

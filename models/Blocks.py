@@ -44,7 +44,7 @@ class InputBlock(nn.Module):
         self.epi2 = LayerEpilogue(nf, dlatent_size, use_wscale, use_noise, use_pixel_norm, use_instance_norm,
                                   use_styles, activation_layer)
 
-    def forward(self, dlatents_in_range):
+    def forward(self, dlatents_in_range, noise):
         batch_size = dlatents_in_range.size(0)
 
         if self.const_input_layer:
@@ -53,9 +53,9 @@ class InputBlock(nn.Module):
         else:
             x = self.dense(dlatents_in_range[:, 0]).view(batch_size, self.nf, 4, 4)
 
-        x = self.epi1(x, dlatents_in_range[:, 0])
+        x = self.epi1(x, noise, dlatents_in_range[:, 0])
         x = self.conv(x)
-        x = self.epi2(x, dlatents_in_range[:, 1])
+        x = self.epi2(x, noise, dlatents_in_range[:, 1])
 
         return x
 
