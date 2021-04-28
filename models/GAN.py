@@ -712,7 +712,7 @@ class StyleGAN:
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
                             )
-
+                    sys.exit(0)
                     # increment the alpha ticker and the step
                     ticker += 1
                     step += 1
