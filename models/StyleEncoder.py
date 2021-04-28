@@ -54,7 +54,7 @@ class StyleEncoder(nn.Module):
 
 
         um = []
-        for _ in range(unmapping):
+        for _ in range(mapping_layers):
             um.append(nn.ReLU())
             um.append(nn.Linear(latent_size*2, latent_size*2))
         self.unmapping = nn.Sequential(*um)
