@@ -149,7 +149,7 @@ class StyleEncoder(nn.Module):
             z = zbatch   
         z = z.sum(dim=1)
         z = self.unmapping(z)
-        return z, n0, n1, n2, n3, n4, n5
+        return z, (n0, n1, n2, n3, n4, n5)
 
 def prod(xs):
     res = 1

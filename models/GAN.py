@@ -487,6 +487,26 @@ class StyleGAN:
 
         return loss
 
+    def __sample_latent_and_noise_from_encoder_output(self, z, noise):
+        ## Sample z
+        b, z_length = z.size()[0], z.size()[1]//2
+        zmean, zlsig = z[:, :l], z[:, l:]
+        eps = torch.randn(b, l).to(zmean.device)
+        eps = Variable(eps)
+        zsample = zmean + eps * (zlsig * 0.5).exp()
+
+        ## Sample noise
+        sample_noise = []
+        for n in noise:
+            mean = n[:, :c//2, :, :].view(b, -1)
+            sig = n[:, c//2:, :, :].view(b, -1)
+            eps = torch.randn(b, c//2, h, w).view(b, -1).to(zmean.device)
+            eps = Variable(eps)
+            sample_n = mean + eps * (sig * 0.5).exp()
+            sample_noise.append(sample_n)
+
+        return zsample, sample_noise
+
     def __progressive_down_sampling(self, real_batch, depth, alpha):
         """
         private helper for down_sampling the original images in order to facilitate the
@@ -694,15 +714,15 @@ class StyleGAN:
                     # extract current batch of data for training
                     images = batch.to(self.device)
 
-                    z, n0, n1, n2, n3, n4, n5 = self.encoder(images, current_depth)
-                    noise = (n0, n1, n2, n3, n4, n5)
-                    for n in noise:
-                        print(n.size())
+                    z, noise = self.encoder(images, current_depth)
+
+                    zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)
+                    
                     # optimize the discriminator:
-                    dis_loss = self.optimize_discriminator(z, noise, images, current_depth, alpha)
+                    dis_loss = self.optimize_discriminator(zsample, noise_sample, images, current_depth, alpha)
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z, noise, images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(zsample, noise_sample, images, current_depth, alpha)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
