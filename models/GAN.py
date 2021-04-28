@@ -22,6 +22,8 @@ from collections import OrderedDict
 import torch
 import torch.nn as nn
 from torch.nn.functional import interpolate
+from torch.autograd import Variable
+
 
 import models.Losses as Losses
 from data import get_data_loader
