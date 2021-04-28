@@ -511,7 +511,7 @@ class StyleGAN:
         # return the so computed real_samples
         return real_samples
 
-    def optimize_discriminator(self, noise, real_batch, depth, alpha):
+    def optimize_discriminator(self, latents, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on discriminator using the batch of data
 
