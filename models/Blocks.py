@@ -13,6 +13,49 @@ import torch.nn as nn
 
 from models.CustomLayers import EqualizedLinear, LayerEpilogue, EqualizedConv2d, BlurLayer, View, StddevLayer
 
+class EncoderBlock(nn.Module):
+
+    def __init__(self, in_channels, channels, num_convs = 3, kernel_size = 3, batch_norm=False, use_weight=True, use_res=True, deconv=False):
+        super().__init__()
+
+        layers = []
+        self.use_weight = use_weight
+        self.use_res = use_res
+
+        padding = int(math.floor(kernel_size / 2))
+
+        self.upchannels = nn.Conv2d(in_channels, channels, kernel_size=1)
+
+        for i in range(num_convs):
+            if deconv:
+                layers.append(nn.ConvTranspose2d(channels, channels, kernel_size=kernel_size, padding=padding, bias=not batch_norm))
+            else:
+                layers.append(nn.Conv2d(channels, channels, kernel_size=kernel_size, padding=padding, bias=not batch_norm))
+
+            if batch_norm:
+                layers.append(nn.BatchNorm2d(channels))
+
+            layers.append(nn.ReLU())
+
+        self.seq = nn.Sequential(*layers)
+
+        if use_weight:
+            self.weight = nn.Parameter(torch.randn(1))
+
+    def forward(self, x):
+
+        x = self.upchannels(x)
+
+        out = self.seq(x)
+
+        if not self.use_res:
+            return out
+
+        if not self.use_weight:
+            return out + x
+
+        return out + self.weight * x
+
 
 class InputBlock(nn.Module):
     """

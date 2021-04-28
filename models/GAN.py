@@ -28,6 +28,7 @@ from data import get_data_loader
 from models import update_average
 from models.Blocks import DiscriminatorTop, DiscriminatorBlock, InputBlock, GSynthesisBlock
 from models.CustomLayers import EqualizedConv2d, PixelNormLayer, EqualizedLinear, Truncation
+from models.StyleEncoder import StyleEncoder
 
 
 class GMapping(nn.Module):
@@ -432,7 +433,10 @@ class StyleGAN:
                                  resolution=resolution,
                                  structure=self.structure,
                                  **d_args).to(self.device)
-
+        print(num_channels, resolution, resolution)
+        # in_size = nim
+        self.encoder = StyleEncoder((num_channels, resolution, resolution), channels, zchannels, zs=256, k=3, unmapping=8, batch_norm=False, z_dropout=0.25
+        sys.exit(0)
         # if code is to be run on GPU, we can use DataParallel:
         # TODO
 
