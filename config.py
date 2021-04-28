@@ -65,6 +65,18 @@ cfg.model.gen.truncation_psi = 0.7
 cfg.model.gen.truncation_cutoff = 8
 
 # ---------------------------------------------------------------------------- #
+# Options for Encoder
+# ---------------------------------------------------------------------------- #
+cfg.model.encoder = CN()
+cfg.model.encoder.latent_size = 512
+cfg.model.encoder.mapping_layers = 4
+cfg.model.encoder.channels = [32, 64, 128, 256, 512]
+cfg.model.encoder.zchannels = [1, 1, 1, 1, 1, 1]
+cfg.model.encoder.k = 3
+cfg.model.encoder.batch_norm = False
+cfg.model.encoder.z_dropout = 0.25
+
+# ---------------------------------------------------------------------------- #
 # Options for Discriminator
 # ---------------------------------------------------------------------------- #
 cfg.model.dis = CN()
@@ -88,3 +100,12 @@ cfg.model.d_optim.learning_rate = 0.003
 cfg.model.d_optim.beta_1 = 0
 cfg.model.d_optim.beta_2 = 0.99
 cfg.model.d_optim.eps = 1e-8
+
+# ---------------------------------------------------------------------------- #
+# Options for Encoder Optimizer
+# ---------------------------------------------------------------------------- #
+cfg.model.e_optim = CN()
+cfg.model.e_optim.learning_rate = 0.003
+cfg.model.e_optim.beta_1 = 0
+cfg.model.e_optim.beta_2 = 0.99
+cfg.model.e_optim.eps = 1e-8

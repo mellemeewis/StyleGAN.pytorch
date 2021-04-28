@@ -10,7 +10,7 @@
 -------------------------------------------------
 """
 
-import os
+import sys, os
 import datetime
 import time
 import timeit
@@ -386,7 +386,7 @@ class Discriminator(nn.Module):
 class StyleGAN:
 
     def __init__(self, structure, resolution, num_channels, latent_size,
-                 g_args, d_args, g_opt_args, d_opt_args, loss="relativistic-hinge", drift=0.001,
+                 g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, device=torch.device("cpu")):
         """
         Wrapper around the Generator and the Discriminator.
@@ -434,14 +434,15 @@ class StyleGAN:
                                  structure=self.structure,
                                  **d_args).to(self.device)
 
-        self.encoder = StyleEncoder((num_channels, resolution, resolution)).to(self.device)
-        sys.exit(0)
+        self.encoder = StyleEncoder((num_channels, resolution, resolution)
+                                     **e_args).to(self.device)
         # if code is to be run on GPU, we can use DataParallel:
         # TODO
 
         # define the optimizers for the discriminator and generator
         self.__setup_gen_optim(**g_opt_args)
         self.__setup_dis_optim(**d_opt_args)
+        self.__setup_endoer_optim(**e_opt_args)
 
         # define the loss function used for training the GAN
         self.drift = drift
@@ -461,6 +462,10 @@ class StyleGAN:
 
     def __setup_dis_optim(self, learning_rate, beta_1, beta_2, eps):
         self.dis_optim = torch.optim.Adam(self.dis.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
+
+    def __setup_encoder_optim(self, learning_rate, beta_1, beta_2, eps):
+        self.encoder_optim = torch.optim.Adam(self.encoder.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
+
 
     def __setup_loss(self, loss):
         if isinstance(loss, str):

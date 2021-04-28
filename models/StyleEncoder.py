@@ -17,7 +17,7 @@ from models.Blocks import EncoderBlock
 
 class StyleEncoder(nn.Module):
 
-    def __init__(self, in_size, channels=[32, 64, 128, 256, 512], zchannels=[1,1,1,1,1,1], zs=256, k=3, unmapping=8, batch_norm=False, z_dropout=0.25):
+    def __init__(self, in_size, channels=[32, 64, 128, 256, 512], zchannels=[1,1,1,1,1,1], latent_size=512, k=3, mapping_layers=8, batch_norm=False, z_dropout=0.25):
         super().__init__()
 
         c, h, w = in_size
