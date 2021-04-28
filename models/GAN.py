@@ -490,7 +490,7 @@ class StyleGAN:
     def __sample_latent_and_noise_from_encoder_output(self, z, noise):
         ## Sample z
         b, z_length = z.size()[0], z.size()[1]//2
-        zmean, zlsig = z[:, :l], z[:, l:]
+        zmean, zlsig = z[:, :z_length], z[:, z_length:]
         eps = torch.randn(b, l).to(zmean.device)
         eps = Variable(eps)
         zsample = zmean + eps * (zlsig * 0.5).exp()
@@ -717,7 +717,7 @@ class StyleGAN:
                     z, noise = self.encoder(images, current_depth)
 
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)
-                    
+
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample, images, current_depth, alpha)
 
