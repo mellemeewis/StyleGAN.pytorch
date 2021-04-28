@@ -667,7 +667,7 @@ class StyleGAN:
                     # extract current batch of data for training
                     images = batch.to(self.device)
 
-                    GAN INPUT = ENCODER(INPUT)
+                    # GAN INPUT = ENCODER(INPUT)
                     gan_input = torch.randn(images.shape[0], self.latent_size).to(self.device)
                     noise = (torch.randn(images.shape[0], 1, current_res/32, current_res/32).to(self.device),
                                 torch.randn(images.shape[0], 1, current_res/16, current_res/16).to(self.device),
