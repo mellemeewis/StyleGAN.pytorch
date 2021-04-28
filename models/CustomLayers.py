@@ -189,7 +189,7 @@ class NoiseLayer(nn.Module):
         self.noise = None
 
     def forward(self, x, noise=None):
-        print("NOISE LAYER\n", noise)
+        # print("NOISE LAYER\n", noise)
         if noise is None and self.noise is None:
             noise = torch.randn(x.size(0), 1, x.size(2), x.size(3), device=x.device, dtype=x.dtype)
         elif noise is None:

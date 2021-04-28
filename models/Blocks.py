@@ -81,7 +81,7 @@ class GSynthesisBlock(nn.Module):
                                   use_styles, activation_layer)
 
     def forward(self, x, dlatents_in_range, noise):
-        print("\nGSynthesisBlock\n", noise)
+        # print("\nGSynthesisBlock\n", noise)
         x = self.conv0_up(x)
         x = self.epi1(x, noise, dlatents_in_range[:, 0])
         x = self.conv1(x)
