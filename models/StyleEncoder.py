@@ -31,14 +31,14 @@ class StyleEncoder(nn.Module):
         self.block4 = EncoderBlock(c3, c4, kernel_size=k, batch_norm=batch_norm)
         self.block5 = EncoderBlock(c4, c5, kernel_size=k, batch_norm=batch_norm)
 
-        self.affine0 = nn.Linear(prod(in_size), 2 * zs)
-        self.affine1 = nn.Linear(prod((c1, h//2, w//2)), 2 * zs)
-        self.affine2 = nn.Linear(prod((c2, h//4, w//4)), 2 * zs)
-        self.affine3 = nn.Linear(prod((c3, h//8, w//8)), 2 * zs)
-        self.affine4 = nn.Linear(prod((c4, h//16, w//16)), 2 * zs)
-        self.affine5 = nn.Linear(prod((c5, h//32, w//32)), 2 * zs)
+        self.affine0 = nn.Linear(prod(in_size), 2 * latent_size)
+        self.affine1 = nn.Linear(prod((c1, h//2, w//2)), 2 * latent_size)
+        self.affine2 = nn.Linear(prod((c2, h//4, w//4)), 2 * latent_size)
+        self.affine3 = nn.Linear(prod((c3, h//8, w//8)), 2 * latent_size)
+        self.affine4 = nn.Linear(prod((c4, h//16, w//16)), 2 * latent_size)
+        self.affine5 = nn.Linear(prod((c5, h//32, w//32)), 2 * latent_size)
 
-        self.affinez = nn.Linear(12 * zs, 2 * zs)
+        self.affinez = nn.Linear(12 * latent_size, 2 * latent_size)
 
         # 1x1 convolution to distribution on "noise space"
         # (mean and sigma)
@@ -56,7 +56,7 @@ class StyleEncoder(nn.Module):
         um = []
         for _ in range(unmapping):
             um.append(nn.ReLU())
-            um.append(nn.Linear(zs*2, zs*2))
+            um.append(nn.Linear(latent_size*2, latent_size*2))
         self.unmapping = nn.Sequential(*um)
 
     def forward(self, x0, depth):
