@@ -64,7 +64,7 @@ class GANLoss:
             b, c, h, w = n.size()
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
-            print(mean.size, sig.size())
+            print(mean.size(), sig.size())
             kl += 0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1)
 
         return kl.mean().to(latent.device)
