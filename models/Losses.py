@@ -70,11 +70,11 @@ class GANLoss:
 
     def reconstruction_loss(self, output, target):
         b, c, w, h = output.size()
-        mus = output[:, :1, :, :]
+        mus = output
         VARMULT = 1e-5
         EPS = 1e-5
 
-        sgs, lsgs  = torch.exp(output[:, c//2:, :, :] * VARMULT), output[:, c//2:, :, :] * VARMULT
+        sgs, lsgs  = torch.exp(output * VARMULT), output * VARMULT
         lny = torch.log(target + EPS)
         ln1y = torch.log(1 - target + EPS)
         x = lny - ln1y
