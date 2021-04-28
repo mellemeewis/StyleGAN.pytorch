@@ -491,7 +491,7 @@ class StyleGAN:
         ## Sample z
         b, z_length = z.size()[0], z.size()[1]//2
         zmean, zlsig = z[:, :z_length], z[:, z_length:]
-        eps = torch.randn(b, l).to(zmean.device)
+        eps = torch.randn(b, z_length).to(zmean.device)
         eps = Variable(eps)
         zsample = zmean + eps * (zlsig * 0.5).exp()
 
