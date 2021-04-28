@@ -86,6 +86,7 @@ if __name__ == '__main__':
                          latent_size=opt.model.gen.latent_size,
                          g_args=opt.model.gen,
                          d_args=opt.model.dis,
+                         e_args=opt.model.encoder,
                          g_opt_args=opt.model.g_optim,
                          d_opt_args=opt.model.d_optim,
                          e_opt_args=opt.model.e_optim,
