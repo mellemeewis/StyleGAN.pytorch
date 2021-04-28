@@ -62,8 +62,8 @@ class GANLoss:
                 continue
 
             b, c, h, w = n.size()
-            mean = z[:, :c//2, :, :].view(b, -1)
-            sig = z[:, c//2:, :, :].view(b, -1)
+            mean = n[:, :c//2, :, :].view(b, -1)
+            sig = n[:, c//2:, :, :].view(b, -1)
 
             kl += 0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1)
 
