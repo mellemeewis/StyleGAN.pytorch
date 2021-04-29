@@ -4,7 +4,7 @@ output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output/'
 structure: 'fixed'
 device_id: ('0')
 checkpoint_factor: 0
-feedback_factor: 10
+feedback_factor: 20
 use_ema: False
 dataset:
   img_dir: '/var/scratch/mms496/data/ffhq/full/thumbnails128x128'

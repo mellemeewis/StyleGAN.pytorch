@@ -3,8 +3,8 @@
 output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output_partial/'
 structure: 'linear'
 device_id: ('0')
-checkpoint_factor: 1
-feedback_factor: 1
+checkpoint_factor: 0
+feedback_factor: 10
 dataset:
   img_dir: '/var/scratch/mms496/data/ffhq/partial/thumbnails128x128'
   folder: True
