@@ -621,7 +621,7 @@ class StyleGAN:
         # if use_ema is true, apply ema to the generator parameters
         if self.use_ema:
             self.ema_updater(self.gen_shadow, self.gen, self.ema_decay)
-            
+
         for p in self.gen.parameters():
                 assert torch.isnan(p).sum() == 0, 'Nans in GEN'
                 assert torch.isinf(p).sum() == 0, 'Infs in GEN'
@@ -693,7 +693,7 @@ class StyleGAN:
         global_time = time.time()
 
         # create fixed_input for debugging
-        fixed_input = torch.randn(num_samples, self.latent_size).to(self.device)
+        fixed_latent = torch.randn(num_samples, self.latent_size).to(self.device)
         fixed_noise = (torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
@@ -762,8 +762,10 @@ class StyleGAN:
                             z, noise = self.encoder(images, current_depth)
                             zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)      
                             reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha).detach()
+                            fixed_reconstruction = self.gen(fixed_latent, fixed_noise[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[::-1], current_depth, alpha).detach()
+
                             self.create_grid(
-                                samples=torch.cat([images, torch.sigmoid(reconstruction), reconstruction]),
+                                samples=torch.cat([images, torch.sigmoid(reconstruction), reconstruction, torch.sigmoid(fixed_reconstruction), fixed_reconstruction]),
                                 scale_factor=int(
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
