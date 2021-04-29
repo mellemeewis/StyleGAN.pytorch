@@ -571,6 +571,9 @@ class StyleGAN:
             nn.utils.clip_grad_norm_(self.dis.parameters(), max_norm=1.)
 
             self.dis_optim.step()
+            for p in self.dis.parameters():
+                assert torch.isnan(p).sum() == 0, 'Nans in Disc'
+                assert torch.isinf(p).sum() == 0, 'Infs in Disc'
 
             loss_val += loss.item()
 
@@ -618,6 +621,13 @@ class StyleGAN:
         # if use_ema is true, apply ema to the generator parameters
         if self.use_ema:
             self.ema_updater(self.gen_shadow, self.gen, self.ema_decay)
+            
+        for p in self.gen.parameters():
+                assert torch.isnan(p).sum() == 0, 'Nans in GEN'
+                assert torch.isinf(p).sum() == 0, 'Infs in GEN'
+        for p in self.encoder.parameters():
+                assert torch.isnan(p).sum() == 0, 'Nans in ENC'
+                assert torch.isinf(p).sum() == 0, 'Infs in ENC'
 
         # return the loss value
         return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
