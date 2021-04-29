@@ -596,7 +596,8 @@ class StyleGAN:
         # generate reconstruction:
         # print("OPTIM GENERATOR \n", noise)
         reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')
-        reconstruction_style_mixing = self.gen(z.detach(), noise.detach(), depth, alpha, mode='style_mixing')
+        noise_detached = (n.detach() for n in noise)
+        reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
 
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
