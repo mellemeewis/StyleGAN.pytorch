@@ -563,7 +563,8 @@ class StyleGAN:
             fake_samples = self.gen(latents, noise, depth, alpha).detach()
 
             loss = self.loss.dis_loss(real_samples, fake_samples, depth, alpha)
-
+            assert torch.isnan(loss).sum() == 0, f'Nans in dis Loss'
+            assert torch.isinf(loss).sum() == 0, f'Infs in dis Loss'
             # optimize discriminator
             self.dis_optim.zero_grad()
             loss.backward()
@@ -593,10 +594,13 @@ class StyleGAN:
         reconstruction = self.gen(z, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
-        # recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
+        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
-        recon_loss = torch.tensor([0.]).to(kl_loss.device)
         adverserial_loss = self.loss.gen_loss(real_samples, reconstruction, depth, alpha)
+
+        for (k,v) in {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss}.items():
+            assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
+            assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
         loss = recon_loss + kl_loss + adverserial_loss
 
