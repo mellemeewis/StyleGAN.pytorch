@@ -250,7 +250,7 @@ class Generator(nn.Module):
         else:
             self.truncation = None
 
-    def forward(self, latents_in, noise, depth, alpha, labels_in=None):
+    def forward(self, latents_in, noise, depth, alpha, labels_in=None, mode='reconstruction'):
         """
         :param latents_in: First input: Latent vectors (Z) [mini_batch, latent_size].
         :param depth: current depth from where output is required
@@ -269,7 +269,7 @@ class Generator(nn.Module):
                 self.truncation.update(dlatents_in[0, 0].detach())
 
             # Perform style mixing regularization.
-            if self.style_mixing_prob is not None and self.style_mixing_prob > 0:
+            if mode == 'style_mixing' and self.style_mixing_prob is not None and self.style_mixing_prob > 0:
                 latents2 = torch.randn(latents_in.shape).to(latents_in.device)
                 dlatents2 = self.g_mapping(latents2)
                 layer_idx = torch.from_numpy(np.arange(self.num_layers)[np.newaxis, :, np.newaxis]).to(
@@ -595,12 +595,13 @@ class StyleGAN:
         recon_target = real_samples
         # generate reconstruction:
         # print("OPTIM GENERATOR \n", noise)
-        reconstruction = self.gen(z, noise, depth, alpha)
+        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')
+        reconstruction_style_mixing = self.gen(z.detach(), noise.detach(), depth, alpha, mode='style_mixing')
 
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
-        adverserial_loss = self.loss.gen_loss(real_samples, reconstruction, depth, alpha)
+        adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
         for (k,v) in {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss}.items():
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
