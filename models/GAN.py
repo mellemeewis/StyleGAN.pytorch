@@ -651,9 +651,11 @@ class StyleGAN:
             samples = interpolate(samples, scale_factor=scale_factor)
 
         # save the images:
-        save_image(samples, img_file, nrow=int(np.sqrt(len(samples))),
+        # save_image(samples, img_file, nrow=int(np.sqrt(len(samples))),
+        #            normalize=True, scale_each=True, pad_value=128, padding=1)
+        save_image(samples, img_file, nrow=5,
                    normalize=True, scale_each=True, pad_value=128, padding=1)
-
+        
     def train(self, dataset, num_workers, epochs, batch_sizes, fade_in_percentage, logger, output,
               num_samples=8, start_depth=0, feedback_factor=100, checkpoint_factor=1):
         """
