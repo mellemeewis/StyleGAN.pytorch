@@ -593,9 +593,9 @@ class StyleGAN:
         reconstruction = self.gen(z, noise, depth, alpha)
 
         # Change this implementation for making it compatible for relativisticGAN
-        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
-        # kl_loss = self.loss.kl_loss(z_distr, noise_distr)
-        kl_loss = torch.tensor([0.]).to(recon_loss.device)
+        # recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
+        kl_loss = self.loss.kl_loss(z_distr, noise_distr)
+        recon_loss = torch.tensor([0.]).to(kl_loss.device)
         adverserial_loss = self.loss.gen_loss(real_samples, reconstruction, depth, alpha)
 
         loss = recon_loss + kl_loss + adverserial_loss
