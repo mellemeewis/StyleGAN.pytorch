@@ -608,7 +608,7 @@ class StyleGAN:
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
             assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
-        loss = recon_loss + kl_loss + adverserial_loss
+        loss = 10*recon_loss + 0.1 * kl_loss + adverserial_loss
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
