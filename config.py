@@ -23,7 +23,7 @@ cfg.use_ema = True
 cfg.ema_decay = 0.999
 
 cfg.num_works = 4
-cfg.num_samples = 36
+cfg.num_samples = 8
 cfg.feedback_factor = 10
 cfg.checkpoint_factor = 10
 

@@ -657,7 +657,7 @@ class StyleGAN:
                    normalize=True, scale_each=True, pad_value=128, padding=1)
 
     def train(self, dataset, num_workers, epochs, batch_sizes, fade_in_percentage, logger, output,
-              num_samples=8, start_depth=0, feedback_factor=100, checkpoint_factor=1):
+              num_samples=36, start_depth=0, feedback_factor=100, checkpoint_factor=1):
         """
         Utility method for training the GAN. Note that you don't have to necessarily use this
         you can use the optimize_generator and optimize_discriminator for your own training routine.
