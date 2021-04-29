@@ -66,7 +66,7 @@ class GANLoss:
                 continue
 
             b, c, h, w = n.size()
-            print(n.size, betas[i+1])
+            print(n.size(), betas[i+1])
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             kl += betas[i+1] * torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01, max=1000)
