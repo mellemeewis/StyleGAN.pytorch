@@ -58,6 +58,7 @@ class GANLoss:
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
+        kl = torch.clamp(kl, min=0, max=1000)
         for i, n in enumerate(noise):
             if n is None:
                 continue
@@ -65,7 +66,7 @@ class GANLoss:
             b, c, h, w = n.size()
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
-            kl += 0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1)
+            kl += torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0, max=1000)
 
         return kl.mean().to(latent.device)
 
