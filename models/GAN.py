@@ -235,6 +235,7 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
 
         self.style_mixing_prob = style_mixing_prob
+        print(self.style_mixing_prob)
 
         # Setup components.
         self.num_layers = (int(np.log2(resolution)) - 1) * 2
@@ -768,7 +769,7 @@ class StyleGAN:
                             mix_fixed_noise = self.gen(zsample, fixed_noise, current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise, current_depth, alpha).detach()
 
                             self.create_grid(
-                                samples=torch.cat([images, torch.sigmoid(reconstruction), reconstruction, torch.sigmoid(fixed_reconstruction), fixed_reconstruction, torch.sigmoid(mix_fixed_noise), mix_fixed_noise]),
+                                samples=torch.cat([images, torch.sigmoid(reconstruction), reconstruction, torch.sigmoid(mix_fixed_noise), mix_fixed_noise, torch.sigmoid(fixed_reconstruction), fixed_reconstruction]),
                                 scale_factor=int(
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
