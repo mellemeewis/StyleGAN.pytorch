@@ -58,7 +58,8 @@ class GANLoss:
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
-        kl = torch.clamp(kl, min=0, max=1000)
+        kl = torch.clamp(kl, min=0.01, max=1000)
+        print(kl.size())
         for i, n in enumerate(noise):
             if n is None:
                 continue
