@@ -567,6 +567,8 @@ class StyleGAN:
             # optimize discriminator
             self.dis_optim.zero_grad()
             loss.backward()
+            nn.utils.clip_grad_norm_(self.dis.parameters(), max_norm=10.)
+
             self.dis_optim.step()
 
             loss_val += loss.item()
