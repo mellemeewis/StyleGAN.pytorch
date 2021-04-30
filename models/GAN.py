@@ -608,7 +608,7 @@ class StyleGAN:
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
             assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
-        loss = 10*recon_loss + 0.1 * kl_loss + adverserial_loss
+        loss = recon_loss + kl_loss + adverserial_loss
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
@@ -769,7 +769,9 @@ class StyleGAN:
                             reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha).detach()
                             fixed_reconstruction = self.gen(fixed_latent, fixed_noise, current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise, current_depth, alpha).detach()
                             mix_fixed_noise = self.gen(zsample, fixed_noise, current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise, current_depth, alpha).detach()
-
+                            print(images[0])
+                            print(reconstruction[0])
+                            print(torch.sigmoid(reconstruction[0])
                             self.create_grid(
                                 samples=torch.cat([images, torch.sigmoid(reconstruction), reconstruction, torch.sigmoid(mix_fixed_noise), mix_fixed_noise, torch.sigmoid(fixed_reconstruction), fixed_reconstruction]),
                                 scale_factor=int(
