@@ -124,7 +124,11 @@ if __name__ == '__main__':
         logger.info("Loading discriminator optimizer from: %s", args.dis_optim_file)
         style_gan.dis_optim.load_state_dict(torch.load(args.dis_optim_file))
 
-    slack_util.send_message(f"Run Started.\nOPTIONS:\n{args}")
+    try:
+        slack_util.send_message(f"Run Started.")
+    except Exception as e:
+        print("slack message failed.")
+
 
     # train the network
     style_gan.train(dataset=dataset,
