@@ -84,7 +84,7 @@ class GANLoss:
         # x = lny - ln1y
         # rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
 
-        rec = F.MSE_loss(output, target, reduction='none')
+        rec = F.mse_loss(output, target, reduction='none')
 
         return rec.mean().to(output.device)
 
