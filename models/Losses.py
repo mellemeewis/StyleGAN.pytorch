@@ -84,7 +84,7 @@ class GANLoss:
         # x = lny - ln1y
         # rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
 
-        rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
+        rec = F.binary_cross_entropy(output, target, reduction='none')
 
         return rec.mean().to(output.device)
 
