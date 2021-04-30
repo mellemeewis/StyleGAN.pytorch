@@ -17,7 +17,7 @@ from torch.backends import cudnn
 from data import make_dataset
 from utils import make_logger, list_dir_recursively_with_ignore, copy_files_and_create_dirs
 from models.GAN import StyleGAN
-
+import slack_util
 
 # Load fewer layers of pre-trained models if possible
 def load(model, cpk_file):
@@ -123,6 +123,8 @@ if __name__ == '__main__':
     if args.dis_optim_file is not None:
         logger.info("Loading discriminator optimizer from: %s", args.dis_optim_file)
         style_gan.dis_optim.load_state_dict(torch.load(args.dis_optim_file))
+
+    slack_util.send_message(f"Run Started.\nOPTIONS:\n{args}")
 
     # train the network
     style_gan.train(dataset=dataset,

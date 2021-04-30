@@ -776,6 +776,14 @@ class StyleGAN:
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
                             )
+
+
+                            try:
+                                s = "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f" % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
+                                slack_util.send_message(s)
+                                slack_util.send_image(gen_img_file, s)
+                            except Exception as e:
+                                print("Saving image failed.")
                     # increment the alpha ticker and the step
                     ticker += 1
                     step += 1
