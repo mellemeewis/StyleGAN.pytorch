@@ -32,6 +32,8 @@ from models.Blocks import DiscriminatorTop, DiscriminatorBlock, InputBlock, GSyn
 from models.CustomLayers import EqualizedConv2d, PixelNormLayer, EqualizedLinear, Truncation
 from models.StyleEncoder import StyleEncoder
 
+import slack_util
+
 
 class GMapping(nn.Module):
 
