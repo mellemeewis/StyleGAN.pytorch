@@ -37,7 +37,7 @@ import slack_util
 
 class GMapping(nn.Module):
 
-    def __init__(self, latent_size=512, dlatent_size=512, dlatent_broadcast=None,
+    def __init__(self, latent_size=512, dlatent_size=512, dlatent_broadcast=None, 
                  mapping_layers=8, mapping_fmaps=512, mapping_lrmul=0.01, mapping_nonlinearity='lrelu',
                  use_wscale=True, normalize_latents=True, **kwargs):
         """
@@ -390,7 +390,7 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size,
+    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator,
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, device=torch.device("cpu")):
         """
@@ -425,29 +425,25 @@ class StyleGAN:
         self.latent_size = latent_size
         self.device = device
         self.d_repeats = d_repeats
+        self.use_discriminator = use_discriminator
 
         self.use_ema = use_ema
         self.ema_decay = ema_decay
 
         # Create the Generator and the Discriminator
-        self.gen = Generator(num_channels=num_channels,
-                             resolution=resolution,
-                             structure=self.structure,
-                             **g_args).to(self.device)
-        self.dis = Discriminator(num_channels=num_channels,
-                                 resolution=resolution,
-                                 structure=self.structure,
-                                 **d_args).to(self.device)
+        self.gen = Generator(num_channels=num_channels, resolution=resolution, structure=self.structure, **g_args).to(self.device)
+        self.encoder = StyleEncoder((num_channels, resolution, resolution), **e_args).to(self.device)
 
-        self.encoder = StyleEncoder((num_channels, resolution, resolution),
-                                     **e_args).to(self.device)
         # if code is to be run on GPU, we can use DataParallel:
         # TODO
 
         # define the optimizers for the discriminator and generator
         self.__setup_gen_optim(**g_opt_args)
-        self.__setup_dis_optim(**d_opt_args)
         self.__setup_encoder_optim(**e_opt_args)
+
+        if self.use_discriminator:
+            self.dis = Discriminator(num_channels=num_channels, resolution=resolution, structure=self.structure, **d_args).to(self.device)
+            self.__setup_dis_optim(**d_opt_args)
 
         # define the loss function used for training the GAN
         self.drift = drift
@@ -605,13 +601,16 @@ class StyleGAN:
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
-        adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
-        for (k,v) in {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss}.items():
+        if self.use_discriminator:
+            adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
+
+        losses_dict = {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss} if self.use_discriminator else {'rec': recon_loss, 'kl': kl_loss}
+        for (k,v) in losses_dict.items():
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
             assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
-        loss = recon_loss + kl_loss + adverserial_loss
+        loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
@@ -636,7 +635,9 @@ class StyleGAN:
                 assert torch.isinf(p).sum() == 0, 'Infs in ENC'
 
         # return the loss value
-        return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
+        if self.use_discriminator:
+            return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
+        return 0, kl_loss.item(), recon_loss.item()
 
 
     @staticmethod
@@ -747,7 +748,8 @@ class StyleGAN:
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
                     # optimize the discriminator:
-                    dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
+                    if self.use_discriminator:
+                        dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     # optimize the generator:
                     adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
@@ -800,24 +802,28 @@ class StyleGAN:
                         save_dir = os.path.join(output, 'models')
                         os.makedirs(save_dir, exist_ok=True)
                         gen_save_file = os.path.join(save_dir, "GAN_GEN_" + str(current_depth) + "_" + str(epoch) + ".pth")
-                        dis_save_file = os.path.join(save_dir, "GAN_DIS_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                        if self.use_discriminator:
+                            dis_save_file = os.path.join(save_dir, "GAN_DIS_" + str(current_depth) + "_" + str(epoch) + ".pth")
                         enc_save_file = os.path.join(save_dir, "GAN_ENC_" + str(current_depth) + "_" + str(epoch) + ".pth")
 
                         gen_optim_save_file = os.path.join(
                             save_dir, "GAN_GEN_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
-                        dis_optim_save_file = os.path.join(
-                            save_dir, "GAN_DIS_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                        if self.use_discriminator:
+                            dis_optim_save_file = os.path.join(
+                                save_dir, "GAN_DIS_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
                         enc_optim_save_file = os.path.join(
                             save_dir, "GAN_ENC_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
 
 
                         logger.info("Saving the model to: %s\n" % gen_save_file)
                         torch.save(self.gen.state_dict(), gen_save_file)
-                        torch.save(self.dis.state_dict(), dis_save_file)
+                        if self.use_discriminator:
+                            torch.save(self.dis.state_dict(), dis_save_file)
                         torch.save(self.encoder.state_dict(), dis_save_file)
 
                         torch.save(self.gen_optim.state_dict(), gen_optim_save_file)
-                        torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
+                        if self.use_discriminator:
+                            torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
                         torch.save(self.encoder_optim.state_dict(), dis_optim_save_file)
 
                         # also save the shadow generator if use_ema is True

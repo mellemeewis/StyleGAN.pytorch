@@ -26,6 +26,8 @@ cfg.num_works = 4
 cfg.num_samples = 8
 cfg.feedback_factor = 10
 cfg.checkpoint_factor = 10
+cfg.use_discriminator = False
+
 
 # ---------------------------------------------------------------------------- #
 # Options for scheduler
@@ -90,8 +92,8 @@ cfg.model.dis.blur_filter = [1, 2, 1]
 # ---------------------------------------------------------------------------- #
 cfg.model.g_optim = CN()
 cfg.model.g_optim.learning_rate = 0.0003
-cfg.model.g_optim.beta_1 = 0
-cfg.model.g_optim.beta_2 = 0.99
+cfg.model.g_optim.beta_1 = 0.9
+cfg.model.g_optim.beta_2 = 0.999
 cfg.model.g_optim.eps = 1e-8
 
 # ---------------------------------------------------------------------------- #
@@ -99,8 +101,8 @@ cfg.model.g_optim.eps = 1e-8
 # ---------------------------------------------------------------------------- #
 cfg.model.d_optim = CN()
 cfg.model.d_optim.learning_rate = 0.0003
-cfg.model.d_optim.beta_1 = 0
-cfg.model.d_optim.beta_2 = 0.99
+cfg.model.d_optim.beta_1 = 0.9
+cfg.model.d_optim.beta_2 = 0.999
 cfg.model.d_optim.eps = 1e-8
 
 # ---------------------------------------------------------------------------- #
@@ -108,6 +110,6 @@ cfg.model.d_optim.eps = 1e-8
 # ---------------------------------------------------------------------------- #
 cfg.model.e_optim = CN()
 cfg.model.e_optim.learning_rate = 0.0003
-cfg.model.e_optim.beta_1 = 0
-cfg.model.e_optim.beta_2 = 0.99
+cfg.model.e_optim.beta_1 = 0.9
+cfg.model.e_optim.beta_2 = 0.999
 cfg.model.e_optim.eps = 1e-8

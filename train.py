@@ -84,6 +84,7 @@ if __name__ == '__main__':
                          resolution=opt.dataset.resolution,
                          num_channels=opt.dataset.channels,
                          latent_size=opt.model.gen.latent_size,
+                         use_discriminator=opt.use_discriminator,
                          g_args=opt.model.gen,
                          d_args=opt.model.dis,
                          e_args=opt.model.encoder,

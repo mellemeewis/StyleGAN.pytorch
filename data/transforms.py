@@ -18,7 +18,7 @@ def get_transform(new_size=None):
 
     if new_size is not None:
         image_transform = Compose([
-            # RandomHorizontalFlip(),
+            RandomHorizontalFlip(),
             Resize(new_size),
             ToTensor(),
             Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
@@ -26,7 +26,7 @@ def get_transform(new_size=None):
 
     else:
         image_transform = Compose([
-            # RandomHorizontalFlip(),
+            RandomHorizontalFlip(),
             ToTensor(),
             Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
         ])
