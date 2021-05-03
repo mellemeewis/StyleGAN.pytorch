@@ -1,7 +1,7 @@
 # Config file for CelebA dataset (200k)
 
 output_dir: '/content/output/mnist'
-structure: 'linear'
+structure: 'fixed'
 device_id: ('0')
 use_ema: False
 checkpoint_factor: 0
