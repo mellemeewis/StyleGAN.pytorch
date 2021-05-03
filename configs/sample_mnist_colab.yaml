@@ -11,7 +11,7 @@ dataset:
   img_dir: '/content/drive/MyDrive/datasets/mnist/training'
   folder: True
   resolution: 32
-  channels: 1
+  # channels: 1
 sched:
   epochs: [8,16,32,32,64,300]
 
