@@ -693,8 +693,9 @@ class StyleGAN:
 
         # turn the generator and discriminator into train mode
         self.gen.train()
-        self.dis.train()
         self.encoder.train()
+        if self.use_discriminator:
+            self.dis.train()
 
         if self.use_ema:
             self.gen_shadow.train()
