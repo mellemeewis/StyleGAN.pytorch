@@ -594,15 +594,15 @@ class StyleGAN:
         recon_target = real_samples
         # generate reconstruction:
         # print("OPTIM GENERATOR \n", noise)
-        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')
-        noise_detached = [n.detach() for n in noise]
-        reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
+        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')                
 
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
 
         if self.use_discriminator:
+            noise_detached = [n.detach() for n in noise]
+            reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
             adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
         losses_dict = {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss} if self.use_discriminator else {'rec': recon_loss, 'kl': kl_loss}
