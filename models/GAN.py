@@ -142,7 +142,7 @@ class GSynthesis(nn.Module):
         self.structure = structure
 
         resolution_log2 = int(np.log2(resolution))
-        # assert resolution == 2 ** resolution_log2 and resolution >= 4
+        assert resolution == 2 ** resolution_log2 and resolution >= 4
         self.depth = resolution_log2 - 1
 
         self.num_layers = resolution_log2 * 2 - 2
@@ -324,7 +324,7 @@ class Discriminator(nn.Module):
         #     blur_filter = [1, 2, 1]
 
         resolution_log2 = int(np.log2(resolution))
-        # assert resolution == 2 ** resolution_log2 and resolution >= 4
+        assert resolution == 2 ** resolution_log2 and resolution >= 4
         self.depth = resolution_log2 - 1
 
         act, gain = {'relu': (torch.relu, np.sqrt(2)),
