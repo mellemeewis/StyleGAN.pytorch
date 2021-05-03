@@ -471,8 +471,9 @@ class StyleGAN:
     def __setup_loss(self, loss):
         if isinstance(loss, str):
             loss = loss.lower()  # lowercase the string
-
-            if loss == "standard-gan":
+            if loss = 'vae':
+                loss = Losses.GANLoss(None)
+            elif loss == "standard-gan":
                 loss = Losses.StandardGAN(self.dis)
             elif loss == "hinge":
                 loss = Losses.HingeGAN(self.dis)
