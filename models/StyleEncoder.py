@@ -71,7 +71,7 @@ class StyleEncoder(nn.Module):
         if depth <= 0:
             z=z0
             z = self.unmapping(z)
-            return z, n0, n1, n2, n3, n4, n5
+            return z, (n0, n1, n2, n3, n4, n5)
 
         x1 = F.avg_pool2d(self.block1(x0), 2)
         z1 = self.affine1(x1.view(b, -1))
@@ -85,7 +85,7 @@ class StyleEncoder(nn.Module):
                 z = zbatch
             z = z.sum(dim=1)
             z = self.unmapping(z)
-            return z, n0, n1, n2, n3, n4, n5
+            return z, (n0, n1, n2, n3, n4, n5)
 
         x2 = F.avg_pool2d(self.block2(x1), 2)
         z2 = self.affine2(x2.view(b, -1))
@@ -99,7 +99,7 @@ class StyleEncoder(nn.Module):
                 z = zbatch       
             z = z.sum(dim=1)
             z = self.unmapping(z)
-            return z, n0, n1, n2, n3, n4, n5
+            return z, (n0, n1, n2, n3, n4, n5)
 
         x3 = F.avg_pool2d(self.block3(x2), 2)
         z3 = self.affine3(x3.view(b, -1))
@@ -113,7 +113,7 @@ class StyleEncoder(nn.Module):
                 z = zbatch   
             z = z.sum(dim=1)
             z = self.unmapping(z)
-            return z, n0, n1, n2, n3, n4, n5
+            return z, (n0, n1, n2, n3, n4, n5)
 
         x4 = F.avg_pool2d(self.block4(x3), 2)
         z4 = self.affine4(x4.view(b, -1))
@@ -127,7 +127,7 @@ class StyleEncoder(nn.Module):
                 z = zbatch
             z = z.sum(dim=1)
             z = self.unmapping(z)
-            return z, n0, n1, n2, n3, n4, n5
+            return z, (n0, n1, n2, n3, n4, n5)
 
         x5 = F.avg_pool2d(self.block5(x4), 2)
         z5 = self.affine5(x5.view(b, -1))
