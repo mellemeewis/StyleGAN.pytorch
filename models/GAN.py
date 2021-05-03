@@ -749,8 +749,7 @@ class StyleGAN:
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
                     # optimize the discriminator:
-                    if self.use_discriminator:
-                        dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha)
+                    dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0
 
                     # optimize the generator:
                     adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
