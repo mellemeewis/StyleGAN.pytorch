@@ -9,7 +9,7 @@ feedback_factor: 20
 dataset:
   img_dir: '/content/drive/MyDrive/datasets/mnist'
   folder: True
-  resolution: 28
+  resolution: 32
 sched:
   epochs: [8,16,32,32,64,300]
 
