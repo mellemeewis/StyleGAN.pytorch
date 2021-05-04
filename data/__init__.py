@@ -9,7 +9,7 @@
 
 from data.datasets import FlatDirectoryImageDataset, FoldersDistributedDataset
 from data.transforms import get_transform
-
+import torchvision
 
 def make_dataset(cfg):
     if cfg.folder:
