@@ -802,7 +802,7 @@ class StyleGAN:
                                 s = "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f" % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
                                 slack_util.send_image(gen_img_file, s)
                             except Exception as e:
-                                print("Saving image failed.")
+                                print("Sending image failed.")
                                 print(e)
                     # increment the alpha ticker and the step
                     ticker += 1
