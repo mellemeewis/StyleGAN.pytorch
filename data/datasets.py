@@ -146,9 +146,7 @@ class FoldersDistributedDataset(Dataset):
 
         # apply the transforms on the image
         if self.transform is not None:
-            print('BEFORE\n\n', img)
             img = self.transform(img)
-            print('\n\n\nAFTER\n', img)
         if img.shape[0] >= 4:
             # ignore the alpha channel
             # in the image if it exists
