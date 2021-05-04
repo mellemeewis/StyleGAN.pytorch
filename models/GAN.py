@@ -580,7 +580,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha, betas=[0.0005,0.001,0.001,0.001,0.0001,0.0001,0.0001,1,1]):
+    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha, betas=[0.001,0.05,0.001,0.001,0.0001,0.0001,0.0001,1,1]):
         """
         performs one step of weight update on generator for the given batch_size
 
