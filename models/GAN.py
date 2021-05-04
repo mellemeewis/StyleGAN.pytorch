@@ -799,7 +799,7 @@ class StyleGAN:
 
 
                             try:
-                                s = "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f" % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
+                                s = "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
                                 slack_util.send_image(gen_img_file, s)
                             except Exception as e:
                                 print("Sending image failed.")
