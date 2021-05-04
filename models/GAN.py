@@ -607,7 +607,7 @@ class StyleGAN:
 
 
         # Change this implementation for making it compatible for relativisticGAN
-        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target) + 2 * self.loss.reconstruction_loss(reconstruction_rn, recon_target)
+        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target) + 20 * self.loss.reconstruction_loss(reconstruction_rn, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
 
         if self.use_discriminator:
