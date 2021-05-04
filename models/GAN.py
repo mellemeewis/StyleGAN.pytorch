@@ -648,7 +648,7 @@ class StyleGAN:
         # return the loss value
         if self.use_discriminator:
             return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
-        return 0, kl_loss.item(), recon_loss.item()
+        # return 0, kl_loss.item(), recon_loss.item()
         return 0, [k.item() for k in kl_loss], recon_loss.item()
 
 
