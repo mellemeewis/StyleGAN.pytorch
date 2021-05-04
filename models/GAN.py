@@ -609,8 +609,8 @@ class StyleGAN:
 
 
         # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
-        kl_total = kl[0] * betas[0] + kl[1] * betas[1] + kl[2] * betas[2] + kl[3] * betas[3] + kl[4] * betas[4] + kl[5] * betas[5] + kl[6] * betas[6]
-        loss = betas[7] * recon_loss + kl_loss + betas[8] * adverserial_loss if self.use_discriminator else betas[7] * recon_loss + kl_loss
+        kl_total = kl_loss[0] * betas[0] + kl_loss[1] * betas[1] + kl_loss[2] * betas[2] + kl_loss[3] * betas[3] + kl_loss[4] * betas[4] + kl_loss[5] * betas[5] + kl_loss[6] * betas[6]
+        loss = betas[7] * recon_loss + kl_total + betas[8] * adverserial_loss if self.use_discriminator else betas[7] * recon_loss + kl_total
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
