@@ -620,7 +620,8 @@ class StyleGAN:
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
             assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
-        loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + 0.000001*kl_loss
+        # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
+        loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss[0]
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
@@ -648,6 +649,7 @@ class StyleGAN:
         if self.use_discriminator:
             return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
         return 0, kl_loss.item(), recon_loss.item()
+        return 0, [k.item() for k in kl_loss], recon_loss.item()
 
 
     @staticmethod
