@@ -591,14 +591,15 @@ class StyleGAN:
         :return: current loss (Wasserstein estimate)
         """
 
+        b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
-        random_noise = (torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution, self.output_resolution).to(self.device))   
+        random_noise = (torch.randn(b, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
+                                torch.randn(b, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
+                                torch.randn(b, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
+                                torch.randn(b, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
+                                torch.randn(b, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
+                                torch.randn(b, 1, self.output_resolution, self.output_resolution).to(self.device))   
 
         # generate reconstruction:
         reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')         
