@@ -615,10 +615,10 @@ class StyleGAN:
             reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
             adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
-        losses_dict = {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss} if self.use_discriminator else {'rec': recon_loss, 'kl': kl_loss}
-        for (k,v) in losses_dict.items():
-            assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
-            assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
+        # losses_dict = {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss} if self.use_discriminator else {'rec': recon_loss, 'kl': kl_loss}
+        # for (k,v) in losses_dict.items():
+        #     assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
+        #     assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
         # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
         loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss[0]
