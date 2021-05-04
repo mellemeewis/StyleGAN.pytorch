@@ -737,7 +737,7 @@ class StyleGAN:
                 fade_point = int((fade_in_percentage[current_depth] / 100)
                                  * epochs[current_depth] * total_batches)
 
-                for (i, batch) in enumerate(data, 1):
+                for (i, (batch,_)) in enumerate(data, 1):
                     # calculate the alpha for fading in the layers
                     alpha = ticker / fade_point if ticker <= fade_point else 1
 
