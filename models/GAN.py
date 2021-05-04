@@ -593,12 +593,20 @@ class StyleGAN:
 
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
+        random_noise = (torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
+                                torch.randn(num_samples, 1, self.output_resolution, self.output_resolution).to(self.device))   
+
         # generate reconstruction:
-        # print("OPTIM GENERATOR \n", noise)
-        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')                
+        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')         
+        reconstruction_rn = self.gen(z, random_noise[-current_depth-1:], depth, alpha, mode='reconstruction')         
+
 
         # Change this implementation for making it compatible for relativisticGAN
-        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
+        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target) + 2 * self.loss.reconstruction_loss(reconstruction_rn, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
 
         if self.use_discriminator:
@@ -611,7 +619,8 @@ class StyleGAN:
             assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
             assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
-        loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
+        loss = recon_loss
+        # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
