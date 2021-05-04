@@ -580,7 +580,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
+    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha, betas=[1,1,1,1,1,1,1,1,1]):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -594,20 +594,12 @@ class StyleGAN:
         b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
-        random_noise = (torch.randn(b, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
-                                torch.randn(b, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
-                                torch.randn(b, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
-                                torch.randn(b, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
-                                torch.randn(b, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
-                                torch.randn(b, 1, self.output_resolution, self.output_resolution).to(self.device))   
 
         # generate reconstruction:
         reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')         
-        reconstruction_rn = self.gen(z, random_noise[-depth-1:], depth, alpha, mode='reconstruction')         
-
 
         # Change this implementation for making it compatible for relativisticGAN
-        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target) + 20 * self.loss.reconstruction_loss(reconstruction_rn, recon_target)
+        recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
 
         if self.use_discriminator:
@@ -615,13 +607,10 @@ class StyleGAN:
             reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
             adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
-        # losses_dict = {'rec': recon_loss, 'kl': kl_loss, 'ad':adverserial_loss} if self.use_discriminator else {'rec': recon_loss, 'kl': kl_loss}
-        # for (k,v) in losses_dict.items():
-        #     assert torch.isnan(v).sum() == 0, f'Nans in {k} Loss'
-        #     assert torch.isinf(v).sum() == 0, f'Infs in {k} Loss'
 
         # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
-        loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss[0]
+        kl_total = kl[0] * betas[0] + kl[1] * betas[1] + kl[2] * betas[2] + kl[3] * betas[3] + kl[4] * betas[4] + kl[5] * betas[5] + kl[6] * betas[6]
+        loss = betas[7] * recon_loss + kl_loss + betas[8] * adverserial_loss if self.use_discriminator else betas[7] * recon_loss + kl_loss
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()

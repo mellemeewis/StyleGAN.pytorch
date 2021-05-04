@@ -53,7 +53,7 @@ class GANLoss:
         """
         raise NotImplementedError("gen_loss method has not been implemented")
 
-    def kl_loss(self, latent, noise, betas=[0.01, 320, 40, 5.12, 0.64, 0.08, 0.01]):
+    def kl_loss(self, latent, noise):
 
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
@@ -71,19 +71,6 @@ class GANLoss:
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
         return [k.mean() for k in kl_list]
 
-        # b, l = latent.size()
-        # zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
-        # kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
-
-        # kl = betas[0]*torch.clamp(kl, min=0.01)
-        # for i, n in enumerate(noise):
-        #     if n is None:
-        #         continue
-
-        #     b, c, h, w = n.size()
-        #     mean = n[:, :c//2, :, :].view(b, -1)
-        #     sig = n[:, c//2:, :, :].view(b, -1)
-        #     kl += betas[i+1] * torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01)
 
         # return kl.mean().to(latent.device)
 
