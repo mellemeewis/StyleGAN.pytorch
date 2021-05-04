@@ -771,9 +771,12 @@ class StyleGAN:
                         elapsed = time.time() - global_time
                         elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                         logger.info(
-                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
+                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f"
                             % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss))
 
+                        # logger.info(
+                        #     "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
+                        #     % (elapsed, step, i, dis_loss, adv_loss, kl_loss[0], recon_loss))
                         # create a grid of samples and save it
                         os.makedirs(os.path.join(output, 'samples'), exist_ok=True)
                         gen_img_file = os.path.join(output, 'samples', "gen_" + str(current_depth)
