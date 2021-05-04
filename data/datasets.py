@@ -144,8 +144,8 @@ class FoldersDistributedDataset(Dataset):
         else:
             img = Image.open(img_name)
             print("BEFORE RGB", img)
-            img = img.convert('RGB')
-            print("AFTER RGB", img)
+            # img = img.convert('RGB')
+            # print("AFTER RGB", img)
 
 
         # apply the transforms on the image
