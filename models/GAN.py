@@ -603,7 +603,7 @@ class StyleGAN:
 
         # generate reconstruction:
         reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')         
-        reconstruction_rn = self.gen(z, random_noise[-current_depth-1:], depth, alpha, mode='reconstruction')         
+        reconstruction_rn = self.gen(z, random_noise[-depth-1:], depth, alpha, mode='reconstruction')         
 
 
         # Change this implementation for making it compatible for relativisticGAN
