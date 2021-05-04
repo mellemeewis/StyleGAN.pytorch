@@ -15,7 +15,7 @@ from torchvision.transforms import ToTensor
 def make_dataset(cfg):
     if cfg.folder:
         print('HI')
-        _dataset = torchvision.datasets.ImageFolder(root=cfg.img_dir, get_transform(new_size=(cfg.resolution, cfg.resolution)))
+        _dataset = torchvision.datasets.ImageFolder(root=cfg.img_dir, transform=get_transform(new_size=(cfg.resolution, cfg.resolution)))
         return _dataset
     else:
         Dataset = FlatDirectoryImageDataset
