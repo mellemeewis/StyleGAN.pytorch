@@ -610,7 +610,7 @@ class StyleGAN:
 
         # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
         while len(kl_loss) < 7:
-            kl_loss.append(torch.tensor([0]))
+            kl_loss.append(torch.tensor([0]).to(self.device))
         kl_total = kl_loss[0] * betas[0] + kl_loss[1] * betas[1] + kl_loss[2] * betas[2] + kl_loss[3] * betas[3] + kl_loss[4] * betas[4] + kl_loss[5] * betas[5] + kl_loss[6] * betas[6]
         loss = betas[7] * recon_loss + kl_total + betas[8] * adverserial_loss if self.use_discriminator else betas[7] * recon_loss + kl_total
 
