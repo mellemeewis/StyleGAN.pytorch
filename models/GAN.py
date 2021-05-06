@@ -390,9 +390,9 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator,
+    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, 
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", drift=0.001,
-                 d_repeats=1, use_ema=False, ema_decay=0.999, device=torch.device("cpu")):
+                 d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, device=torch.device("cpu")):
         """
         Wrapper around the Generator and the Discriminator.
 
@@ -426,6 +426,7 @@ class StyleGAN:
         self.device = device
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
+        self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False)
 
         self.use_ema = use_ema
         self.ema_decay = ema_decay
@@ -751,8 +752,8 @@ class StyleGAN:
 
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
-                    print([n.size() for n in noise_sample])
-                    sys.exit(0)
+                    noise_sample = [(n) for n in noise]
+
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0
 

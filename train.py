@@ -96,6 +96,7 @@ if __name__ == '__main__':
                          d_repeats=opt.d_repeats,
                          use_ema=opt.use_ema,
                          ema_decay=opt.ema_decay,
+                         noise_channel_dropout = opt.noise_channel_dropout
                          device=device)
 
     # Resume training from checkpoints
