@@ -212,6 +212,7 @@ class GSynthesis(nn.Module):
         else:
             raise KeyError("Unknown structure: ", self.structure)
 
+        print(images_out.size())
         return images_out
 
 
