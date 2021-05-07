@@ -428,7 +428,6 @@ class StyleGAN:
         self.use_discriminator = use_discriminator
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False)
         print(self.noise_channel_dropout)
-        print(noise_channel_dropout)
         self.num_channels = num_channels
         self.betas = betas
 
