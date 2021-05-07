@@ -79,6 +79,7 @@ if __name__ == '__main__':
     # create the dataset for training
     dataset = make_dataset(opt.dataset)
 
+    print(opt.recon_loss)
     # init the network
     style_gan = StyleGAN(structure=opt.structure,
                          resolution=opt.dataset.resolution,
