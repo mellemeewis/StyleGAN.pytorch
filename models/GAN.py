@@ -450,9 +450,9 @@ class StyleGAN:
 
         # define the loss function used for training the GAN
         self.drift = drift
-        self.loss = self.__setup_loss(loss)
         self.recon_loss = recon_loss
         print(self.recon_loss)
+        self.loss = self.__setup_loss(loss)
 
         # Use of ema
         if self.use_ema:
