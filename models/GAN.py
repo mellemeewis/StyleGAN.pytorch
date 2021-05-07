@@ -452,6 +452,7 @@ class StyleGAN:
         self.drift = drift
         self.loss = self.__setup_loss(loss)
         self.recon_loss = recon_loss
+        print(self.recon_loss)
 
         # Use of ema
         if self.use_ema:
