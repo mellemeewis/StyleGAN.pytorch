@@ -1,0 +1,17 @@
+# Config file for CelebA dataset (200k)
+
+output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output/'
+structure: 'fixed'
+device_id: ('0')
+checkpoint_factor: 0
+feedback_factor: 20
+recon_loss: 'bce'
+betas: [0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1]
+use_ema: False
+dataset:
+  img_dir: '/var/scratch/mms496/data/ffhq/full/thumbnails128x128'
+  folder: True
+  resolution: 128
+sched:
+  epochs: [8,16,32,32,64,300]
+  batch_sizes: [2,2,2,2,2,8]
