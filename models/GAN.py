@@ -596,7 +596,7 @@ class StyleGAN:
         :return: current loss (Wasserstein estimate)
         """
         betas = self.betas
-
+        print(betas)
         b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
