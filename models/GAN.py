@@ -391,8 +391,8 @@ class Discriminator(nn.Module):
 class StyleGAN:
 
     def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, 
-                 g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", drift=0.001,
-                 d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, device=torch.device("cpu")):
+                 g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace' drift=0.001,
+                 d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
         Wrapper around the Generator and the Discriminator.
 
@@ -428,6 +428,7 @@ class StyleGAN:
         self.use_discriminator = use_discriminator
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False)
         self.num_channels = num_channels
+        self.betas = betas
 
         self.use_ema = use_ema
         self.ema_decay = ema_decay
@@ -450,6 +451,7 @@ class StyleGAN:
         # define the loss function used for training the GAN
         self.drift = drift
         self.loss = self.__setup_loss(loss)
+        self.recon_loss = recon_loss
 
         # Use of ema
         if self.use_ema:
@@ -786,7 +788,8 @@ class StyleGAN:
                             fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
 
                             self.create_grid(
-                                samples=torch.cat([images, torch.sigmoid(reconstruction), torch.sigmoid(mix_fixed_noise), torch.sigmoid(fixed_reconstruction)]),
+                                samples=torch.cat([images, torch.sigmoid(reconstruction), torch.sigmoid(mix_fixed_noise), torch.sigmoid(fixed_reconstruction),
+                                                   images, reconstruction, mix_fixed_noise, fixed_reconstruction]),
                                 scale_factor=int(
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,

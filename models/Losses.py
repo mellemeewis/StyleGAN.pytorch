@@ -28,8 +28,9 @@ class GANLoss:
              Note this must be a part of the GAN framework
     """
 
-    def __init__(self, dis):
+    def __init__(self, dis, reconstruction_loss):
         self.dis = dis
+        self.recon_loss = recon_loss
 
     def dis_loss(self, real_samps, fake_samps, height, alpha):
         """
@@ -75,19 +76,22 @@ class GANLoss:
         # return kl.mean().to(latent.device)
 
     def reconstruction_loss(self, output, target):
-        b, c, w, h = output.size()
-        mus = output[:,:c//2,:,:]
-        VARMULT = 1e-5
-        EPS = 1e-5
+        assert self.recon_loss in ['siglaplace', 'bce'], f'Loss {self.recon_loss} not recognized, pick siglaplace or bce'
+        if self.recon_loss == 'siglaplace':
+            b, c, w, h = output.size()
+            mus = output[:,:c//2,:,:]
+            VARMULT = 1e-5
+            EPS = 1e-5
 
-        sgs, lsgs  = torch.exp(output[:,c//2:,:,:] * VARMULT), output[:,c//2:,:,:] * VARMULT
-        lny = torch.log(target + EPS)
-        ln1y = torch.log(1 - target + EPS)
-        x = lny - ln1y
-        rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
+            sgs, lsgs  = torch.exp(output[:,c//2:,:,:] * VARMULT), output[:,c//2:,:,:] * VARMULT
+            lny = torch.log(target + EPS)
+            ln1y = torch.log(1 - target + EPS)
+            x = lny - ln1y
+            rec = lny + ln1y + lsgs + math.log(2.0) + (x - mus).abs() / sgs
 
-        # rec = F.mse_loss(output, target, reduction='none')
-        # rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
+        elif self.recon_loss == 'bce':
+
+            rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
 
         return rec.mean().to(output.device)
 

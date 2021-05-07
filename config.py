@@ -17,10 +17,12 @@ cfg.device_id = '3'
 
 cfg.structure = 'fixed'
 cfg.loss = "vae"
+cfg.recon_loss = 'siglaplace'
 cfg.drift = 0.001
 cfg.d_repeats = 1
 cfg.use_ema = True
 cfg.ema_decay = 0.999
+cfg.betas = [0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1]
 
 cfg.num_works = 4
 cfg.num_samples = 8
