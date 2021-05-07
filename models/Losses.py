@@ -93,6 +93,8 @@ class GANLoss:
         elif self.recon_loss == 'bce':
 
             WEIGHT = 0.1
+            EPS = 1e-5
+
             rloss = F.binary_cross_entropy_with_logits(output[:, :c//2, :, :], target, reduction='none')
 
             za = output[:, :c//2, :, :].abs()
