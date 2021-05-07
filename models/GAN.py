@@ -428,6 +428,7 @@ class StyleGAN:
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False)
+        self.num_channels = num_channels
 
         self.use_ema = use_ema
         self.ema_decay = ema_decay
@@ -781,9 +782,9 @@ class StyleGAN:
 
                             z, noise = self.encoder(images, current_depth)
                             zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)      
-                            reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha).detach()
-                            mix_fixed_noise = self.gen(zsample, fixed_noise[-current_depth-1:], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise[:current_depth+1], current_depth, alpha).detach()
-                            fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha).detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha).detach()
+                            reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
+                            mix_fixed_noise = self.gen(zsample, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
+                            fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
 
                             self.create_grid(
                                 samples=torch.cat([images, torch.sigmoid(reconstruction), torch.sigmoid(mix_fixed_noise), torch.sigmoid(fixed_reconstruction)]),
