@@ -92,7 +92,7 @@ if __name__ == '__main__':
                          d_opt_args=opt.model.d_optim,
                          e_opt_args=opt.model.e_optim,
                          loss=opt.loss,
-                         recon_loss = opt.recon_loss
+                         recon_loss = opt.recon_loss,
                          drift=opt.drift,
                          d_repeats=opt.d_repeats,
                          use_ema=opt.use_ema,
