@@ -165,7 +165,7 @@ class GSynthesis(nn.Module):
             # name = '{s}x{s}'.format(s=2 ** res)
             blocks.append(GSynthesisBlock(last_channels, channels, blur_filter, dlatent_size, gain, use_wscale,
                                           use_noise, use_pixel_norm, use_instance_norm, use_styles, act))
-            rgb_converters.append(EqualizedConv2d(channels, num_channels, 1, gain=1, use_wscale=use_wscale))
+            rgb_converters.append(EqualizedConv2d(channels, num_channels*2, 1, gain=1, use_wscale=use_wscale))
 
         self.blocks = nn.ModuleList(blocks)
         self.to_rgb = nn.ModuleList(rgb_converters)
