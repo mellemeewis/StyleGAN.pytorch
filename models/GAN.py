@@ -391,7 +391,7 @@ class Discriminator(nn.Module):
 class StyleGAN:
 
     def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, 
-                 g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace' drift=0.001,
+                 g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace', drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
         Wrapper around the Generator and the Discriminator.
@@ -584,7 +584,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1]):
+    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -594,7 +594,7 @@ class StyleGAN:
         :param alpha: value of alpha for fade-in effect
         :return: current loss (Wasserstein estimate)
         """
-
+        betas = self.betas
         b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
