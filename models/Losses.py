@@ -77,8 +77,9 @@ class GANLoss:
 
     def reconstruction_loss(self, output, target):
         assert self.recon_loss in ['siglaplace', 'bce'], f'Loss {self.recon_loss} not recognized, pick siglaplace or bce'
+        b, c, w, h = output.size()
+
         if self.recon_loss == 'siglaplace':
-            b, c, w, h = output.size()
             mus = output[:,:c//2,:,:]
             VARMULT = 1e-5
             EPS = 1e-5
@@ -91,7 +92,16 @@ class GANLoss:
 
         elif self.recon_loss == 'bce':
 
-            rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
+            WEIGHT = 0.1
+            rloss = F.binary_cross_entropy_with_logits(output[:, :c//2, :, :], images, reduction='none')
+
+            za = output[:, :c//2, :, :].abs()
+            eza = (-za).exp()
+
+            logpart = - (za + EPS).log() + (-eza + EPS).log1p() - (eza + EPS).log1p()
+            rec = rloss + WEIGHT * logpart
+
+            # rec = F.binary_cross_entropy_with_logits(output, target, reduction='none')
 
         return rec.mean().to(output.device)
 
