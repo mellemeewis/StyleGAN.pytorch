@@ -476,15 +476,15 @@ class StyleGAN:
         if isinstance(loss, str):
             loss = loss.lower()  # lowercase the string
             if loss == 'vae':
-                loss = Losses.GANLoss(None)
+                loss = Losses.GANLoss(None, self.recon_loss)
             elif loss == "standard-gan":
-                loss = Losses.StandardGAN(self.dis)
+                loss = Losses.StandardGAN(self.dis, self.recon_loss)
             elif loss == "hinge":
-                loss = Losses.HingeGAN(self.dis)
+                loss = Losses.HingeGAN(self.dis, self.recon_loss)
             elif loss == "relativistic-hinge":
-                loss = Losses.RelativisticAverageHingeGAN(self.dis)
+                loss = Losses.RelativisticAverageHingeGAN(self.dis, self.recon_loss)
             elif loss == "logistic":
-                loss = Losses.LogisticGAN(self.dis)
+                loss = Losses.LogisticGAN(self.dis, self.recon_loss)
             else:
                 raise ValueError("Unknown loss function requested")
 
@@ -595,6 +595,7 @@ class StyleGAN:
         :return: current loss (Wasserstein estimate)
         """
         betas = self.betas
+
         b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples

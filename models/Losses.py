@@ -28,7 +28,7 @@ class GANLoss:
              Note this must be a part of the GAN framework
     """
 
-    def __init__(self, dis, reconstruction_loss):
+    def __init__(self, dis, recon_loss):
         self.dis = dis
         self.recon_loss = recon_loss
 
