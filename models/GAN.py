@@ -155,7 +155,7 @@ class GSynthesis(nn.Module):
         self.init_block = InputBlock(nf(1), dlatent_size, const_input_layer, gain, use_wscale,
                                      use_noise, use_pixel_norm, use_instance_norm, use_styles, act)
         # create the ToRGB layers for various outputs
-        rgb_converters = [EqualizedConv2d(nf(1), num_channels, 1, gain=1, use_wscale=use_wscale)]
+        rgb_converters = [EqualizedConv2d(nf(1), num_channels*2, 1, gain=1, use_wscale=use_wscale)]
 
         # Building blocks for remaining layers.
         blocks = []
