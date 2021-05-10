@@ -626,10 +626,10 @@ class StyleGAN:
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
         self.encoder_optim.zero_grad()
-        for param in self.gen.parameters():
-            print(param.grad == None)
-        for paam in self.encoder.parameters():
-            print(paam.grad == None)
+        # for param in self.gen.parameters():
+        #     print(param.grad == None)
+        # for paam in self.encoder.parameters():
+        #     print(paam.grad == None)
         loss.backward()
         # Gradient Clipping
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
