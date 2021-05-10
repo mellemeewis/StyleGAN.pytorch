@@ -629,7 +629,7 @@ class StyleGAN:
         for param in self.gen.parameters():
             print(param.grad == None)
         for paam in self.encoder.parameters():
-            print(paam.grad() == None)
+            print(paam.grad == None)
         loss.backward()
         # Gradient Clipping
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
@@ -638,7 +638,7 @@ class StyleGAN:
         for param in self.gen.parameters():
             print(param.grad == None)
         for paam in self.encoder.parameters():
-            print(paam.grad() == None)
+            print(paam.grad == None)
         self.gen_optim.step()
         self.encoder_optim.step()
 
