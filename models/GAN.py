@@ -635,13 +635,20 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-        for param in self.gen.parameters():
-            if param.grad == None:
-                print(param)
+        for name, param in self.gen.named_parameters():
+            if param.grad is not None:
+                print(name, param.grad.sum())
+            else:
+                print(name, param.grad)
         print("\n\n\n")
-        for param in self.encoder.parameters():
-            if param.grad == None:
-                print(param)
+        
+
+        for name, param in self.encoder.named_parameters():
+            if param.grad is not None:
+                print(name, param.grad.sum())
+            else:
+                print(name, param.grad)
+
         sys.exit(0)
         self.gen_optim.step()
         self.encoder_optim.step()
