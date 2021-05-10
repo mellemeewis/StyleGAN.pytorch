@@ -38,7 +38,7 @@ class StyleEncoder(nn.Module):
         self.affine4 = nn.Linear(prod((c4, h//16, w//16)), 2 * latent_size)
         self.affine5 = nn.Linear(prod((c5, h//32, w//32)), 2 * latent_size)
 
-        self.affinez = nn.Linear(12 * latent_size, 2 * latent_size)
+        # self.affinez = nn.Linear(12 * latent_size, 2 * latent_size)
 
         # 1x1 convolution to distribution on "noise space"
         # (mean and sigma)
