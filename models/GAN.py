@@ -640,6 +640,7 @@ class StyleGAN:
         print("\n\n\n")
         for param in self.encoder.parameters():
             print(param, param.grad == None)
+        sys.exit(0)
         self.gen_optim.step()
         self.encoder_optim.step()
 
