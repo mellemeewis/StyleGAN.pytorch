@@ -653,7 +653,7 @@ class StyleGAN:
         if self.use_discriminator:
             return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
         # return 0, kl_loss.item(), recon_loss.item()
-        return 0, [k.item() for k in kl_loss], recon_loss.item()
+        return 0, [round(k.item(),5) for k in kl_loss], recon_loss.item()
 
 
     @staticmethod
@@ -807,7 +807,7 @@ class StyleGAN:
 
 
                             try:
-                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.recon_loss, elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
+                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.betas[7], elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
                                 slack_util.send_image(gen_img_file, s)
                             except Exception as e:
                                 print("Sending image failed.")
