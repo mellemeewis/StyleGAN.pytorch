@@ -1,0 +1,15 @@
+# Config file for CelebA dataset (200k)
+
+output_dir: '/content/output/ffhq'
+structure: 'fixed'
+device_id: ('0')
+use_ema: False
+checkpoint_factor: 0
+feedback_factor: 20
+dataset:
+  img_dir: '/content/drive/MyDrive/datasets/ffhq'
+  folder: True
+  resolution: 128
+sched:
+  epochs: [8,16,32,32,64,300]
+
