@@ -429,8 +429,9 @@ class StyleGAN:
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
-        self.betas = betas
-        print(betas)
+        b = betas[0]         
+        self.betas = [b/32, b, b*0.25, b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), b*(0.25**6), betas[7], betas[8]]
+        print(self.betas)
 
         self.use_ema = use_ema
         self.ema_decay = ema_decay
@@ -597,7 +598,8 @@ class StyleGAN:
         :param alpha: value of alpha for fade-in effect
         :return: current loss (Wasserstein estimate)
         """
-        betas = self.betas
+        # betas = self.betas
+        betas=self.betas
         b = real_batch.size()[0]
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         recon_target = real_samples
