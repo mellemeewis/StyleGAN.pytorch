@@ -631,7 +631,7 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-        for param in self.gen.parameters() + self.encoder.parameters():
+        for param in [self.gen.parameters()] + [self.encoder.parameters()]:
             print(param.grad)
 
         self.gen_optim.step()
