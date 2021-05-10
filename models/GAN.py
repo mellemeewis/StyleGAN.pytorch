@@ -631,6 +631,9 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
+        for param in self.gen.parameters() + self.encoder.parameters():
+            print(param.grad)
+
         self.gen_optim.step()
         self.encoder_optim.step()
 
@@ -815,6 +818,8 @@ class StyleGAN:
                 elapsed = timeit.default_timer() - start
                 elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                 logger.info("Time taken for epoch: %s\n" % elapsed)
+
+
 
                 if checkpoint_factor > 0:
                     if epoch % checkpoint_factor == 0 or epoch == 1 or epoch == epochs[current_depth]:
