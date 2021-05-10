@@ -626,7 +626,7 @@ class StyleGAN:
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
         self.encoder_optim.zero_grad()
-        or param in self.gen.parameters():
+        for param in self.gen.parameters():
             print(param.grad == None)
         for paam in self.encoder.parameters():
             print(paam.grad() == None)
