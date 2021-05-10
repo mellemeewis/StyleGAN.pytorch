@@ -430,7 +430,7 @@ class StyleGAN:
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
         b = betas[0]         
-        self.betas = [b/32, b, b*0.25, b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), b*(0.25**6), betas[7], betas[8]]
+        self.betas = [b/32, b, b*0.25, b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), b*(0.25**6), betas[8], betas[9]]
         print(self.betas)
 
         self.use_ema = use_ema
@@ -634,7 +634,7 @@ class StyleGAN:
         # Gradient Clipping
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
-        
+
         self.gen_optim.step()
         self.encoder_optim.step()
 
