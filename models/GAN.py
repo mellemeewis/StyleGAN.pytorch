@@ -426,7 +426,7 @@ class StyleGAN:
         self.device = device
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
-        self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False)
+        self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
         self.betas = betas
@@ -758,7 +758,8 @@ class StyleGAN:
 
                     zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
-                    noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
+                    if self.noise_channel_dropout:
+                        noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
 
                     # optimize the discriminator:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0

@@ -22,7 +22,7 @@ cfg.drift = 0.001
 cfg.d_repeats = 1
 cfg.use_ema = True
 cfg.ema_decay = 0.999
-cfg.betas = [0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1]
+cfg.betas = [1,1,1,1,1,1,1,1,1]
 
 cfg.num_works = 4
 cfg.num_samples = 8
@@ -67,7 +67,7 @@ cfg.model.gen.latent_size = 512
 # 8 in original paper
 cfg.model.gen.mapping_layers = 4
 cfg.model.gen.blur_filter = [1, 2, 1]
-cfg.model.gen.truncation_psi = 0
+cfg.model.gen.truncation_psi = -1
 cfg.model.gen.truncation_cutoff = 0
 cfg.model.gen.style_mixing_prob = 0.9
 
