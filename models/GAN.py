@@ -483,6 +483,7 @@ class StyleGAN:
                     size = np.prod(list(n.size()[1:]))
                     relative_kl.append(kl/size)
                 max_index = np.argmax(relative_kl)
+                print(relative_kl)
                 kl_betas[max_index] += 0.0001
 
             ## SOFTMAX
