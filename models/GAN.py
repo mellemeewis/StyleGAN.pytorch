@@ -491,10 +491,12 @@ class StyleGAN:
             kl_betas = np.exp(kl_betas) / np.exp(kl_betas).sum()
 
             self.betas[:7] = kl_betas
-            if self.betas==start:
-                print('NO CHANGE', relative_kl)
-            else:
-                print("CHANGE ", relative_kl)
+            if kl_loss and noise:
+
+                if self.betas==start:
+                    print('NO CHANGE', relative_kl)
+                else:
+                    print("CHANGE ", relative_kl)
 
     def __setup_gen_optim(self, learning_rate, beta_1, beta_2, eps):
         self.gen_optim = torch.optim.Adam(self.gen.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
