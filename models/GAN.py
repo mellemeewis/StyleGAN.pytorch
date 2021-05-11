@@ -796,7 +796,7 @@ class StyleGAN:
                     # optimize the generator:
                     adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
 
-                    self.__update_betas(kl_loss, noise)
+                    self.__update_betas(kl_loss, [zsample] + noise_sample)
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
