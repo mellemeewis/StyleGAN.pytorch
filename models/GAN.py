@@ -474,7 +474,7 @@ class StyleGAN:
     def __update_betas(self, kl_loss=None, noise=None):
 
         with torch.no_grad():
-            start = [i for i in self.betas]
+            # start = [i for i in self.betas]
             kl_betas = [i for i in  self.betas[:7]]
 
             if kl_loss and noise:
@@ -484,7 +484,7 @@ class StyleGAN:
                     relative_kl.append(kl/size)
                 max_index = np.argmax(relative_kl)
                 # print(max_index, kl_betas)
-                kl_betas[max_index] += 0.1
+                kl_betas[max_index] += 0.0001
                 # print(kl_betas)
                 # print(kl_betas, '\n\n')
 
