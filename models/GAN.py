@@ -471,7 +471,7 @@ class StyleGAN:
             # initialize the gen_shadow weights equal to the weights of gen
             self.ema_updater(self.gen_shadow, self.gen, beta=0)
 
-    def __update_betas(kl_loss=None, noise=None):
+    def __update_betas(self, kl_loss=None, noise=None):
 
         kl_betas = self.betas[:7]
 
