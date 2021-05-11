@@ -492,7 +492,9 @@ class StyleGAN:
 
             self.betas[:7] = kl_betas
             if self.betas==start:
-                print(relative_kl)
+                print('NO CHANGE', relative_kl)
+            else:
+                print("CHANGE ", relative_kl)
 
     def __setup_gen_optim(self, learning_rate, beta_1, beta_2, eps):
         self.gen_optim = torch.optim.Adam(self.gen.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
