@@ -484,7 +484,7 @@ class StyleGAN:
                     relative_kl.append(kl/size)
                 max_index = np.argmax(relative_kl)
                 # print(max_index, kl_betas)
-                kl_betas[max_index] += 0.0001
+                kl_betas[max_index] += 0.000001
                 # print(kl_betas)
                 # print(kl_betas, '\n\n')
 
