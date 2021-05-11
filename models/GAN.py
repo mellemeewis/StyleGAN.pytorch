@@ -474,7 +474,7 @@ class StyleGAN:
     def __update_betas(self, kl_loss=None, noise=None):
 
         with torch.no_grad():
-            start = self.betas
+            start = [i for i in self.betas]
             kl_betas = self.betas[:7]
 
             if kl_loss and noise:
