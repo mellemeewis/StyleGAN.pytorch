@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.nn.functional import interpolate
 from torch.autograd import Variable
 
@@ -429,9 +430,11 @@ class StyleGAN:
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
-        b = betas[0]         
+        # b = betas[0]         
         # self.betas = [b/32, b*(0.25**0), b*(0.25**1), b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), betas[7], betas[8]]
-        self.betas = [b*(0.25**5)*32, b*(0.25**5), b*(0.25**4), b*(0.25**3), b*(0.25**2), b*(0.25**1), b*(0.25**0), betas[7], betas[8]]
+        self.betas = betas
+        self.__update_betas(kl_loss=None, noise=None)
+        # self.betas = [b*(0.25**5)*32, b*(0.25**5), b*(0.25**4), b*(0.25**3), b*(0.25**2), b*(0.25**1), b*(0.25**0), betas[7], betas[8]]
 
         print(self.betas)
 
@@ -468,6 +471,23 @@ class StyleGAN:
             # initialize the gen_shadow weights equal to the weights of gen
             self.ema_updater(self.gen_shadow, self.gen, beta=0)
 
+    def __update_betas(kl_loss=None, noise=None):
+
+        kl_betas = self.betas[:7]
+
+        if kl_loss and noise:
+            relative_kl = []
+            for kl, n in zip(kl_loss, noise):
+                _, c, h, w = n.size()
+                relative_kl.append(kl/(c*h*w))
+            max_index = np.argmax(relative_kl)
+            kl_betas[max_index] += 0.0001
+
+        ## SOFTMAX
+        kl_betas = np.exp(kl_betas) / np.exp(kl_betas).sum()
+
+        self.betas[:7] = kl_betas
+
     def __setup_gen_optim(self, learning_rate, beta_1, beta_2, eps):
         self.gen_optim = torch.optim.Adam(self.gen.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
 
@@ -499,7 +519,7 @@ class StyleGAN:
 
         return loss
 
-    def __sample_latent_and_noise_from_encoder_output(self, z, noise):
+    def sample_latent_and_noise_from_encoder_output(self, z, noise):
         ## Sample z
         b, z_length = z.size()[0], z.size()[1]//2
         zmean, zlsig = z[:, :z_length], z[:, z_length:]
@@ -658,6 +678,7 @@ class StyleGAN:
         return 0, [round(k.item(),5) for k in kl_loss], recon_loss.item()
 
 
+
     @staticmethod
     def create_grid(samples, scale_factor, img_file):
         """
@@ -764,7 +785,7 @@ class StyleGAN:
 
                     z_distr, noise_distr = self.encoder(images, current_depth)
 
-                    zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
+                    zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
                     if self.noise_channel_dropout:
                         noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
@@ -775,13 +796,15 @@ class StyleGAN:
                     # optimize the generator:
                     adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
 
+                    self.__update_betas(kl_loss, noise)
+
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
                         elapsed = time.time() - global_time
                         elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                         logger.info(
-                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f"
-                            % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss))
+                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f, Betas: %s"
+                            % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss, self.betas))
 
                         # logger.info(
                         #     "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
@@ -794,7 +817,7 @@ class StyleGAN:
                         with torch.no_grad():
 
                             z, noise = self.encoder(images, current_depth)
-                            zsample, noise_sample = self.__sample_latent_and_noise_from_encoder_output(z, noise)      
+                            zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z, noise)      
                             reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
                             mix_fixed_noise = self.gen(zsample, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
                             fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
@@ -809,7 +832,7 @@ class StyleGAN:
 
 
                             try:
-                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.betas[7], elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
+                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.betas, elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
                                 slack_util.send_image(gen_img_file, s)
                             except Exception as e:
                                 print("Sending image failed.")
