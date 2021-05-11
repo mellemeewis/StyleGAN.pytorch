@@ -490,7 +490,7 @@ class StyleGAN:
             kl_betas = np.exp(kl_betas) / np.exp(kl_betas).sum()
 
             self.betas[:7] = kl_betas
-            print self.betas==start
+            print(self.betas==start)
 
     def __setup_gen_optim(self, learning_rate, beta_1, beta_2, eps):
         self.gen_optim = torch.optim.Adam(self.gen.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
