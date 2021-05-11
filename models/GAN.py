@@ -480,7 +480,7 @@ class StyleGAN:
             if kl_loss and noise:
                 relative_kl = []
                 for kl, n in zip(kl_loss, noise):
-                    size = torch.prod(n.size())
+                    size = np.prod(list(n.size()[1:]))
                     relative_kl.append(kl/(c*h*w))
                 max_index = np.argmax(relative_kl)
                 kl_betas[max_index] += 0.0001
