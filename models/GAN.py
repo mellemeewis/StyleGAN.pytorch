@@ -430,7 +430,9 @@ class StyleGAN:
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
         b = betas[0]         
-        self.betas = [b/32, b, b*0.25, b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), betas[7], betas[8]]
+        # self.betas = [b/32, b*(0.25**0), b*(0.25**1), b*(0.25**2), b*(0.25**3), b*(0.25**4), b*(0.25**5), betas[7], betas[8]]
+        self.betas = [b*(0.25**5)*32, b*(0.25**5), b*(0.25**4), b*(0.25**3), b*(0.25**2), b*(0.25**1), b*(0.25**0), betas[7], betas[8]]
+
         print(self.betas)
 
         self.use_ema = use_ema
