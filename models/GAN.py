@@ -473,20 +473,22 @@ class StyleGAN:
 
     def __update_betas(self, kl_loss=None, noise=None):
 
-        kl_betas = self.betas[:7]
+        with torch.no_grad():
 
-        if kl_loss and noise:
-            relative_kl = []
-            for kl, n in zip(kl_loss, noise):
-                _, c, h, w = n.size()
-                relative_kl.append(kl/(c*h*w))
-            max_index = np.argmax(relative_kl)
-            kl_betas[max_index] += 0.0001
+            kl_betas = self.betas[:7]
 
-        ## SOFTMAX
-        kl_betas = np.exp(kl_betas) / np.exp(kl_betas).sum()
+            if kl_loss and noise:
+                relative_kl = []
+                for kl, n in zip(kl_loss, noise):
+                    size = torch.prod(n.size())
+                    relative_kl.append(kl/(c*h*w))
+                max_index = np.argmax(relative_kl)
+                kl_betas[max_index] += 0.0001
 
-        self.betas[:7] = kl_betas
+            ## SOFTMAX
+            kl_betas = np.exp(kl_betas) / np.exp(kl_betas).sum()
+
+            self.betas[:7] = kl_betas
 
     def __setup_gen_optim(self, learning_rate, beta_1, beta_2, eps):
         self.gen_optim = torch.optim.Adam(self.gen.parameters(), lr=learning_rate, betas=(beta_1, beta_2), eps=eps)
