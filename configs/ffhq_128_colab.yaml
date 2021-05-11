@@ -5,7 +5,7 @@ structure: 'fixed'
 device_id: ('0')
 use_ema: False
 checkpoint_factor: 0
-feedback_factor: 10
+feedback_factor: 30
 recon_loss: 'siglaplace'
 betas: [1,1,1,1,1,1,1,3.5,1]
 noise_channel_dropout: 0
