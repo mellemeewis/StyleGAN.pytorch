@@ -1,12 +1,12 @@
 # Config file for CelebA dataset (200k)
 
-output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output_siglaplace_2/'
+output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output_siglaplace_5/'
 structure: 'fixed'
 device_id: ('0')
 checkpoint_factor: 0
 feedback_factor: 2
 recon_loss: 'siglaplace'
-betas: [1,1,1,1,1,1,1,2,1]
+betas: [1,1,1,1,1,1,1,100,1]
 use_ema: False
 noise_channel_dropout: 0
 dataset:
