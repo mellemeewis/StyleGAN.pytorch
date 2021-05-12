@@ -750,7 +750,7 @@ class StyleGAN:
     def sleep_phase(self, b, depth, alpha):
         sample_z, sample_n = self.sample_latent(b, depth)
         with torch.no_grad():
-            gen_out = self.gen(sample_z, sample_n, depth, alpha, mode='reconstruction')   
+            gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction')   
             images = self.sample_images(gen_out, self.recon_loss)
 
         z_recon, noise_recon = self.encoder(images, depth)
