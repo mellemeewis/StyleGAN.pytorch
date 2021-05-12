@@ -762,7 +762,7 @@ class StyleGAN:
         sleep_total.backward()
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
         self.encoder_optim.step()
-        return round(sleep_loss.item(), 3)
+        return round(sleep_total.item(), 3)
 
 
 
