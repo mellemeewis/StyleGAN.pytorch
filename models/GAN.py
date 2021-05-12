@@ -553,7 +553,7 @@ class StyleGAN:
 
         return zsample, sample_noise
 
-    def sample_latent(self, b, depth, dev=self.device):
+    def sample_latent(self, b, depth):
         """
         Samples latents from the normal distribution.
         :param b:
@@ -747,7 +747,7 @@ class StyleGAN:
         # return 0, kl_loss.item(), recon_loss.item()
         return 0, [round(k.item(),5) for k in kl_loss], recon_loss.item()
 
-    def sleep_phase(b, depth, alpha):
+    def sleep_phase(self, b, depth, alpha):
         sample_z, sample_n = self.sample_latent(b, depth)
         with torch.no_grad():
             gen_out = self.gen(sample_z, sample_n, depth, alpha, mode='reconstruction')   
