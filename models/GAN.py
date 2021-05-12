@@ -762,10 +762,7 @@ class StyleGAN:
         sleep_total.backward()
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
         self.encoder_optim.step()
-        print(sleep_loss)
-        print(sleep_total)
-        sys.exit()
-        return sleep_loss
+        return round(sleep_loss.item(), 3)
 
 
 
@@ -897,8 +894,8 @@ class StyleGAN:
                         elapsed = time.time() - global_time
                         elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                         logger.info(
-                            "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f, Betas: %s"
-                            % (elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss, self.betas))
+                            "Elapsed: [%s] Step: %d  Batch: %d  Sleep_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f, Betas: %s"
+                            % (elapsed, step, i, sleep_Loss, adv_loss, kl_loss, recon_loss, self.betas))
 
                         # logger.info(
                         #     "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
@@ -926,7 +923,7 @@ class StyleGAN:
 
 
                             try:
-                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.betas, elapsed, step, i, dis_loss, adv_loss, kl_loss, recon_loss)
+                                s = "%s Elapsed: [%s] Step: %d  Batch: %d  Sleep_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f" % (self.betas, elapsed, step, i, sleep_loss, adv_loss, kl_loss, recon_loss)
                                 slack_util.send_image(gen_img_file, s)
                             except Exception as e:
                                 print("Sending image failed.")
