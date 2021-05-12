@@ -763,6 +763,7 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
         self.encoder_optim.step()
         print(sleep_loss)
+        print(sleep_total)
         sys.exit()
         return sleep_loss
 
