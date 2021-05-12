@@ -572,24 +572,24 @@ class StyleGAN:
 
         n = [None] * 6
 
-        z = torch.randn(b, zsize, device=dev)
+        z = torch.randn(b, zsize, device=self.device)
 
-        n[0] = torch.randn(b, zc0, h, w, device=dev)
+        n[0] = torch.randn(b, zc0, h, w, device=self.device)
 
         if depth >=1:
-            n[1] = torch.randn(b, zc1, h // 2, w // 2, device=dev)
+            n[1] = torch.randn(b, zc1, h // 2, w // 2, device=self.device)
 
         if depth >= 2:
-            n[2] = torch.randn(b, zc2, h // 4, w // 4, device=dev)
+            n[2] = torch.randn(b, zc2, h // 4, w // 4, device=self.device)
 
         if depth >= 3:
-            n[3] = torch.randn(b, zc3, h // 8, w // 8, device=dev)
+            n[3] = torch.randn(b, zc3, h // 8, w // 8, device=self.device)
 
         if depth >= 4:
-            n[4] = torch.randn(b, zc4, h // 16, w // 16, device=dev)
+            n[4] = torch.randn(b, zc4, h // 16, w // 16, device=self.device)
 
         if depth >= 5:
-            n[5] = torch.randn(b, zc5, h // 32, w // 32, device=dev)
+            n[5] = torch.randn(b, zc5, h // 32, w // 32, device=self.device)
 
         return z, n
 
