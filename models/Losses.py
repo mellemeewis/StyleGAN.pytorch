@@ -83,12 +83,12 @@ class GANLoss:
             if n is None:
                 continue
             b, c, h, w = n.size()
-            loc, scale = n[:,:c//2:,:] n[:, c//2:,:,:].clamp(min=0.0001)
+            loc, scale = n[:,:c//2:,:], n[:, c//2:,:,:].clamp(min=0.0001)
             distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
             sleep_loss.append(-distribution.log_prob(target_noise[i]))
 
         print(sleep_loss)
-        print([k.mean() for k in sleep_loss])
+        print([s.mean() for s in sleep_loss])
         return loss
 
 
