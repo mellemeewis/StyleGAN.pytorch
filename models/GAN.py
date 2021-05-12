@@ -553,7 +553,7 @@ class StyleGAN:
 
         return zsample, sample_noise
 
-    def sample_latent(b, depth, dev=self.device):
+    def sample_latent(self, b, depth, dev=self.device):
         """
         Samples latents from the normal distribution.
         :param b:
@@ -594,7 +594,7 @@ class StyleGAN:
         return z, n
 
 
-    def sample_images(image_distr, distribution, n=1, eps=None):
+    def sample_images(self, image_distr, distribution, n=1, eps=None):
 
         if image_distr is None:
             return None
