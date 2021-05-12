@@ -72,6 +72,29 @@ class GANLoss:
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
         return [k.mean() for k in kl_list]
 
+    def sleep_loss(self, z_recon, noise_recon, target_z, target_noise)
+
+        print(z_recon.size(), target_z.size())
+        for n in noise_recon:
+            print(n.size)
+
+        for n in target_noise:
+            print(n.size())
+
+        sys.exit()
+
+        b,l = output.size()
+
+        assert torch.isnan(output).sum() == 0
+        assert torch.isinf(output).sum() == 0
+
+
+        loc = output[:,:l//2]
+        scale = output[:, l//2:].clamp(min=0.0001)
+        distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
+        loss = -distribution.log_prob(target)
+        return loss
+
 
         # return kl.mean().to(latent.device)
 

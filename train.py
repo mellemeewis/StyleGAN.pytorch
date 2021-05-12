@@ -86,6 +86,7 @@ if __name__ == '__main__':
                          num_channels=opt.dataset.channels,
                          latent_size=opt.model.gen.latent_size,
                          use_discriminator=opt.use_discriminator,
+                         use_sleep=opt.use_sleep,
                          g_args=opt.model.gen,
                          d_args=opt.model.dis,
                          e_args=opt.model.encoder,

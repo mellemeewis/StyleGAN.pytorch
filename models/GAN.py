@@ -391,7 +391,7 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, 
+    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep,
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace', drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
@@ -427,6 +427,7 @@ class StyleGAN:
         self.device = device
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
+        self.use_sleep = use_sleep
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
@@ -484,7 +485,7 @@ class StyleGAN:
                     relative_kl.append(kl/size)
                 max_index = np.argmax(relative_kl)
                 # print(max_index, kl_betas)
-                kl_betas[max_index] += 0.000001
+                kl_betas[max_index] += 0.00001
                 # print(kl_betas)
                 # print(kl_betas, '\n\n')
 
@@ -551,6 +552,64 @@ class StyleGAN:
                 sample_noise.append(sample_n.view(b, c//2, h, w))
 
         return zsample, sample_noise
+
+    def sample_latent(b, depth, dev=self.device):
+        """
+        Samples latents from the normal distribution.
+        :param b:
+        :param zsize:
+        :param outsize:
+        :param depth:
+        :param zchannels:
+        :param dev:
+        :return:
+        """
+
+        h, w =self.output_resolution, self.output_resolution
+        zc0, zc1, zc2, zc3, zc4, zc5 = self.encoder.zchannels
+        zsize = self.latent_size
+
+
+        n = [None] * 6
+
+        z = torch.randn(b, zsize, device=dev)
+
+        n[0] = torch.randn(b, zc0, h, w, device=dev)
+
+        if depth >=1:
+            n[1] = torch.randn(b, zc1, h // 2, w // 2, device=dev)
+
+        if depth >= 2:
+            n[2] = torch.randn(b, zc2, h // 4, w // 4, device=dev)
+
+        if depth >= 3:
+            n[3] = torch.randn(b, zc3, h // 8, w // 8, device=dev)
+
+        if depth >= 4:
+            n[4] = torch.randn(b, zc4, h // 16, w // 16, device=dev)
+
+        if depth >= 5:
+            n[5] = torch.randn(b, zc5, h // 32, w // 32, device=dev)
+
+        return z, n
+
+
+    def sample_images(image_distr, distribution, n=1, eps=None):
+
+        if image_distr is None:
+            return None
+        b, c, h, w = image_distr.size()
+
+        if distribution == 'siglaplace':
+
+            loc = image_distr[:, :c//2, :, :].view(b, -1)
+            scale = image_distr[:, c//2:, :, :].clamp(min=0.001).view(b, -1)
+
+            distribution = torch.distributions.laplace.Laplace(loc, scale, validate_args=None)
+            sample = distribution.sample(sample_shape=(n,))
+            sample = torch.sigmoid(sample)
+
+        return sample.view(b, c//2, h, w)
 
     def __progressive_down_sampling(self, real_batch, depth, alpha):
         """
@@ -688,6 +747,18 @@ class StyleGAN:
         # return 0, kl_loss.item(), recon_loss.item()
         return 0, [round(k.item(),5) for k in kl_loss], recon_loss.item()
 
+    def sleep_phase(b, depth, alpha):
+        sample_z, sample_n = self.sample_latent(b, depth)
+        with torch.no_grad():
+            gen_out = self.gen(sample_z, sample_n, depth, alpha, mode='reconstruction')   
+            images = self.sample_images(gen_out, self.recon_loss)
+
+        z_recon, noise_recon = self.encoder(images, depth)
+
+        sleep_loss = self.loss.sleep_loss(z_recon, noise_recon, sample_z, noise_z)
+
+
+
 
 
     @staticmethod
@@ -808,6 +879,8 @@ class StyleGAN:
                     adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     self.__update_betas(kl_loss, [zsample] + noise_sample)
+
+                    sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:

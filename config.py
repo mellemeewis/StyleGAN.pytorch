@@ -29,6 +29,7 @@ cfg.num_samples = 8
 cfg.feedback_factor = 10
 cfg.checkpoint_factor = 10
 cfg.use_discriminator = False
+cfg.use_sleep = True
 cfg.noise_channel_dropout = 0
 
 

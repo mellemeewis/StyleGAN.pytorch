@@ -23,6 +23,11 @@ class StyleEncoder(nn.Module):
         c, h, w = in_size
         c1, c2, c3, c4, c5 = channels
         z0, z1, z2, z3, z4, z5 = zchannels
+        self.in_size = (c,h,w)
+        self.channels = channels
+        self.zchannels = zchannels
+        self.latent_size = latent_size
+        
 
         # resnet blocks
         self.block1 = EncoderBlock(c,  c1, kernel_size=k, batch_norm=batch_norm)
