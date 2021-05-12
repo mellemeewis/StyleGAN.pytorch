@@ -895,7 +895,7 @@ class StyleGAN:
                         elapsed = str(datetime.timedelta(seconds=elapsed)).split('.')[0]
                         logger.info(
                             "Elapsed: [%s] Step: %d  Batch: %d  Sleep_Loss: %f  AD_Loss: %f, KL_Loss: %s, ReconLoss: %f, Betas: %s"
-                            % (elapsed, step, i, sleep_Loss, adv_loss, kl_loss, recon_loss, self.betas))
+                            % (elapsed, step, i, sleep_loss, adv_loss, kl_loss, recon_loss, self.betas))
 
                         # logger.info(
                         #     "Elapsed: [%s] Step: %d  Batch: %d  D_Loss: %f  AD_Loss: %f, KL_Loss: %f, ReconLoss: %f"
