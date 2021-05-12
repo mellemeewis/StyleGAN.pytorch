@@ -755,7 +755,7 @@ class StyleGAN:
 
         z_recon, noise_recon = self.encoder(images, depth)
 
-        sleep_loss = self.loss.sleep_loss(z_recon, noise_recon, sample_z, noise_z)
+        sleep_loss = self.loss.sleep_loss(z_recon, noise_recon, sample_z, sample_n)
 
 
 
