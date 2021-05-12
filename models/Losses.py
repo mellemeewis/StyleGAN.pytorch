@@ -76,7 +76,7 @@ class GANLoss:
 
         print(z_recon.size(), target_z.size())
         for n in noise_recon:
-            print(n.size)
+            print(n.size())
 
         for n in target_noise:
             print(n.size())
