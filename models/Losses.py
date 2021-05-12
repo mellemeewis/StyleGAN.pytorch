@@ -87,9 +87,7 @@ class GANLoss:
             distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
             sleep_loss.append(-distribution.log_prob(target_noise[i]))
 
-        print(sleep_loss)
-        print([s.mean() for s in sleep_loss])
-        return loss
+        return [s.mean() for s in sleep_loss]
 
 
         # return kl.mean().to(latent.device)

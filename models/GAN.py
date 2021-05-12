@@ -756,6 +756,14 @@ class StyleGAN:
         z_recon, noise_recon = self.encoder(images, depth)
 
         sleep_loss = self.loss.sleep_loss(z_recon, noise_recon, sample_z, sample_n)
+        sleep_loss = torch.sum(sleep_loss)
+        self.encoder_optim.zero_grad()
+        sleep_loss.backward()
+        nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
+        self.encoder_optim.step()
+        print(sleep_loss)
+        sys.exit()
+        return sleep_loss
 
 
 
