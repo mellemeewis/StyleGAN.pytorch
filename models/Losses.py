@@ -77,7 +77,7 @@ class GANLoss:
         b,l = z_recon.size()
         loc, scale = z_recon[:,:l//2], z_recon[:, l//2:].clamp(min=0.0001)
         distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
-        sleep_loss = [-distribution.log_prob(target)]
+        sleep_loss = [-distribution.log_prob(target_z)]
 
         for i, n in enumerate(noise_recon):
             if n is None:
