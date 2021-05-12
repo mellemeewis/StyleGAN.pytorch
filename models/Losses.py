@@ -74,25 +74,21 @@ class GANLoss:
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
-        print(z_recon.size(), target_z.size())
-        for n in noise_recon:
-            print(n.size())
-
-        for n in target_noise:
-            print(n.size())
-
-        sys.exit()
-
-        b,l = output.size()
-
-        assert torch.isnan(output).sum() == 0
-        assert torch.isinf(output).sum() == 0
-
-
-        loc = output[:,:l//2]
-        scale = output[:, l//2:].clamp(min=0.0001)
+        b,l = z_recon.size()
+        loc, scale = z_recon[:,:l//2], z_recon[:, l//2:].clamp(min=0.0001)
         distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
-        loss = -distribution.log_prob(target)
+        sleep_loss = [-distribution.log_prob(target)]
+
+        for i, n in enumerate(noise_recon):
+            if n is None:
+                continue
+            b, c, h, w = n.size()
+            loc, scale = n[:,:c//2:,:] n[:, c//2:,:,:].clamp(min=0.0001)
+            distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
+            sleep_loss.append(-distribution.log_prob(target_noise[i]))
+
+        print(sleep_loss)
+        print([k.mean() for k in sleep_loss])
         return loss
 
 
