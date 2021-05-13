@@ -8,7 +8,7 @@ checkpoint_factor: 0
 feedback_factor: 30
 recon_loss: 'siglaplace'
 betas: [1,1,1,1,1,1,1,50,1]
-noise_channel_dropout: 0
+noise_channel_dropout: 0.2
 dataset:
   img_dir: '/content/drive/MyDrive/datasets/ffhq'
   folder: True
