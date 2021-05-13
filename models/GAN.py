@@ -680,7 +680,7 @@ class StyleGAN:
 
         return loss_val / self.d_repeats
 
-    def optimize_generator_and_encoder(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
+    def vae_phase(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -763,6 +763,30 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
         self.encoder_optim.step()
         return round(sleep_total.item(), 3)
+
+    def adverserial_phase(self, b, depth, alpha):
+        betas = self.betas
+        sample_z, sample_n = self.sample_latent(b, depth)
+        
+        gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction')   
+        images = self.sample_images(gen_out, self.recon_loss)
+
+        z_recon, noise_recon = self.encoder(images, depth)
+
+        adverserial_loss = self.loss.kl_loss(z_recon, noise_recon, sample_z, sample_n)
+        
+
+
+        adverial_total = adverserial_loss[0] * betas[0] + adverserial_loss[1] * betas[1] + adverserial_loss[2] * betas[2] + adverserial_loss[3] * betas[3] + adverserial_loss[4] * betas[4] + adverserial_loss[5] * betas[5] + adverserial_loss[6] * betas[6]
+
+
+        self.encoder_optim.zero_grad()
+        self.gen_optim.zero()
+
+        sleep_total.backward()
+        nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
+        self.gen_optim.step()
+        return round(adverial_total.item(), 3)
 
 
 
@@ -883,11 +907,12 @@ class StyleGAN:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.optimize_generator_and_encoder(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.vae_phase(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
 
                     self.__update_betas(kl_loss, [zsample] + noise_sample)
 
                     sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
+                    adverserial_loss = self.adverserial_phase()
 
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
