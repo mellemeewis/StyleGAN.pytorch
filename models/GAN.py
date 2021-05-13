@@ -767,7 +767,7 @@ class StyleGAN:
 
         z_recon, noise_recon = self.encoder(images, depth)
 
-        adverserial_loss = self.loss.kl_loss(z_recon, noise_recon, sample_z, sample_n)
+        adverserial_loss = self.loss.kl_loss(z_recon, noise_recon)
         
 
 
