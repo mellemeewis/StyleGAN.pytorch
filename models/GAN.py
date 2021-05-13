@@ -782,7 +782,7 @@ class StyleGAN:
         adverserial_total.backward()
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         self.gen_optim.step()
-        return round(adverial_total.item(), 3)
+        return round(adverserial_total.item(), 3)
 
 
 
