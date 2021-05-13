@@ -391,7 +391,7 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep,
+    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep, use_adverserial,
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace', drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
@@ -428,6 +428,7 @@ class StyleGAN:
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
         self.use_sleep = use_sleep
+        self.use_adverserial = use_adverserial
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
         self.num_channels = num_channels
@@ -734,13 +735,6 @@ class StyleGAN:
         if self.use_ema:
             self.ema_updater(self.gen_shadow, self.gen, self.ema_decay)
 
-        for p in self.gen.parameters():
-                assert torch.isnan(p).sum() == 0, 'Nans in GEN'
-                assert torch.isinf(p).sum() == 0, 'Infs in GEN'
-        for p in self.encoder.parameters():
-                assert torch.isnan(p).sum() == 0, 'Nans in ENC'
-                assert torch.isinf(p).sum() == 0, 'Infs in ENC'
-
         # return the loss value
         if self.use_discriminator:
             return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
@@ -912,8 +906,8 @@ class StyleGAN:
                     self.__update_betas(kl_loss, [zsample] + noise_sample)
 
                     sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
-                    adverserial_loss = self.adverserial_phase()
-
+                    adverserial_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
+                    adv_loss=adverserial_loss
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
                         elapsed = time.time() - global_time
