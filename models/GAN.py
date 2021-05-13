@@ -775,7 +775,7 @@ class StyleGAN:
 
 
         self.encoder_optim.zero_grad()
-        self.gen_optim.zero()
+        self.gen_optim.zero_grad()
 
         sleep_total.backward()
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
