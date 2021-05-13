@@ -9,7 +9,6 @@ recon_loss: 'siglaplace'
 betas: [1,1,1,1,1,1,1,50,1]
 noise_channel_dropout: 0.2
 use_ema: False
-noise_channel_dropout: 0
 dataset:
   img_dir: '/var/scratch/mms496/data/ffhq/full/thumbnails128x128'
   folder: True
