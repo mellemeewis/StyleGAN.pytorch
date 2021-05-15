@@ -1,0 +1,17 @@
+# Config file for CelebA dataset (200k)
+
+output_dir: '/home/mms496/StyleVAE_Experiments/stylegan/output_siglaplace_50_1/'
+structure: 'fixed'
+device_id: ('0')
+checkpoint_factor: 0
+feedback_factor: 2
+recon_loss: 'siglaplace'
+betas: [1,1,1,1,1,1,1,50,1]
+use_ema: False
+dataset:
+  img_dir: '/var/scratch/mms496/data/ffhq/full/thumbnails128x128'
+  folder: True
+  resolution: 128
+sched:
+  epochs: [8,16,32,32,64,300]
+  batch_sizes: [2,2,2,2,2,8]
