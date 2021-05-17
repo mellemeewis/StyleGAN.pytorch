@@ -21,6 +21,7 @@ class StyleEncoder(nn.Module):
         super().__init__()
 
         c, h, w = in_size
+        print(in_size)
         c1, c2, c3, c4, c5 = channels
         z0, z1, z2, z3, z4, z5 = zchannels
         self.in_size = (c,h,w)
