@@ -935,8 +935,7 @@ class StyleGAN:
                             fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
 
                             self.create_grid(
-                                samples=torch.cat([images, torch.sigmoid(reconstruction), torch.sigmoid(mix_fixed_noise), torch.sigmoid(fixed_reconstruction),
-                                                   images, reconstruction, mix_fixed_noise, fixed_reconstruction]),
+                                samples=torch.cat([images, torch.sigmoid(reconstruction), torch.sigmoid(mix_fixed_noise), torch.sigmoid(fixed_reconstruction)]),
                                 scale_factor=int(
                                     np.power(2, self.depth - current_depth - 1)) if self.structure == 'linear' else 1,
                                 img_file=gen_img_file,
