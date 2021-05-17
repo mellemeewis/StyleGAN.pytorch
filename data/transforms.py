@@ -14,7 +14,7 @@ def get_transform(new_size=None):
     :param new_size: size of the resized images
     :return: image_transform => transform object from TorchVision
     """
-    from torchvision.transforms import ToTensor, Normalize, Compose, Resize, RandomHorizontalFlip, GrayScale
+    from torchvision.transforms import ToTensor, Normalize, Compose, Resize, RandomHorizontalFlip, Grayscale
 
     if new_size is not None:
         image_transform = Compose([
