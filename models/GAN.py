@@ -188,7 +188,7 @@ class GSynthesis(nn.Module):
 
         assert depth < self.depth, "Requested output depth cannot be produced"
         # print(len(noise), len(self.blocks))
-        assert len(noise) == len(self.blocks) + 1, "Number of noise tensors does not correspond with state of model."
+        # assert len(noise) == len(self.blocks) + 1, "Number of noise tensors does not correspond with state of model."
 
         if self.structure == 'fixed':
             x = self.init_block(dlatents_in[:, 0:2], noise[0])
