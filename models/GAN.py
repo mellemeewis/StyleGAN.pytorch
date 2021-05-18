@@ -779,6 +779,9 @@ class StyleGAN:
         self.gen_optim.zero_grad()
 
         adverserial_total.backward()
+
+        for name, param in self.encoder.named_parameters():
+            print(name, param.grad)
         for name, param in self.gen.named_parameters():
             print(name, param.grad)
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
