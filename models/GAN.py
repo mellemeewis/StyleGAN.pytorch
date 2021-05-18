@@ -703,6 +703,8 @@ class StyleGAN:
 
         z_distr, noise_distr = self.encoder(images, current_depth)
         zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
+        if self.noise_channel_dropout:
+            noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
 
         # generate reconstruction:
         reconstruction = self.gen(zsample, noise_sample[::-1], depth, alpha, mode='reconstruction')         
@@ -888,9 +890,6 @@ class StyleGAN:
                     # extract current batch of data for training
                     if torch.cuda.is_available():
                         images = batch.cuda()
-
-                    if self.noise_channel_dropout:
-                        noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
 
                     # optimize the discriminator:
                     dis_loss = self.update_encoder_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
