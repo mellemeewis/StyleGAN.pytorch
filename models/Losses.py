@@ -100,7 +100,7 @@ class GANLoss:
         b,l = z_recon.size()
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
         zvar = zsig.exp() # variance
-        diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (rec_target - zmean).pow(2.0)]
+        diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
         for i, n in enumerate(noise_recon):
             if n is None:
