@@ -687,7 +687,7 @@ class StyleGAN:
             nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
             self.encoder_optim.step()
-            print(real_loss, fake_loss)
+            print(real_loss.item(), fake_loss.item())
 
         return dis_loss
 
