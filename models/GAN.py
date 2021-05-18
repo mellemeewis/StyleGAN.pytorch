@@ -765,7 +765,6 @@ class StyleGAN:
         
         gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction')   
         images = self.sample_images(gen_out, self.recon_loss)
-        print(images)
 
         z_recon, noise_recon = self.encoder(images, depth)
 
@@ -782,10 +781,10 @@ class StyleGAN:
         adverserial_total.backward()
 
         for name, param in self.encoder.named_parameters():
-            print(name, param.grad==None)
+            print(name, param.requires_grad, param.grad==None)
         print("\n\n")
         for name, param in self.gen.named_parameters():
-            print(name, param.grad==None)
+            print(name, param.requires_grad, param.grad==None)
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         self.gen_optim.step()
         return round(adverserial_total.item(), 3)
