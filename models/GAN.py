@@ -686,7 +686,6 @@ class StyleGAN:
 
         self.encoder_optim.step()
 
-        print(0)
         return dis_loss
 
     def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
@@ -897,15 +896,12 @@ class StyleGAN:
                     # optimize the discriminator:
                     dis_loss = self.update_enc_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
 
-                    print(1)
 
                     # optimize the generator:
                     kl_loss, recon_loss = self.vae_phase(images, current_depth, alpha) if self.use_vae else 0, 0
-                    pirnt(2)
 
                     sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
                     adv_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
-                    print(3)
 
                     self.__update_betas(kl_loss, [fixed_latent] + fixed_noise)
                     self.loss.update_simp(epoch, epochs[current_depth])
