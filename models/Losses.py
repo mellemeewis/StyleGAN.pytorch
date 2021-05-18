@@ -65,8 +65,8 @@ class GANLoss:
 
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
-        print("REAL: ", zlsig.exp().mean())
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
+        variances = [zlsig.exp()]
 
         kl = torch.clamp(kl, min=0.01)
         kl_list = [kl]
@@ -78,6 +78,8 @@ class GANLoss:
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
+            variances.append(sig.exp())
+        print("REAL: ", [v.mean().item() for v in variances])
         return [k.mean() for k in kl_list]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
@@ -100,10 +102,11 @@ class GANLoss:
     def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise, eps=1e-5):
         b,l = z_recon.size()
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
-        print("FAKE: ", zsig.exp().mean())
+        
         zvar = zsig.exp() # variance
         diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
+        variances = [zvar]
         for i, n in enumerate(noise_recon):
             if n is None:
                 continue
@@ -111,7 +114,9 @@ class GANLoss:
             zmean, zsig = n[:,:c//2:,:], n[:, c//2:,:,:]
             zvar = zsig.exp()
             diss_loss.append(zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_noise[i] - zmean).pow(2.0))
+            variances.append(zvar)
 
+        print("FAKE: ", [v.mean().item() for v in variances])
         return [d.mean() for d in diss_loss]
 
 
