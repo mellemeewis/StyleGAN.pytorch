@@ -782,6 +782,7 @@ class StyleGAN:
 
         for name, param in self.encoder.named_parameters():
             print(name, param.grad==None)
+        print("\n\n")
         for name, param in self.gen.named_parameters():
             print(name, param.grad==None)
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
