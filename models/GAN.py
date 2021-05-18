@@ -876,6 +876,8 @@ class StyleGAN:
             data = get_data_loader(dataset, batch_sizes[current_depth], num_workers)
 
             for epoch in range(1, epochs[current_depth] + 1):
+                self.loss.update_simp(epoch-1, epochs[current_depth])
+
                 start = timeit.default_timer()  # record time at the start of epoch
 
                 logger.info("Epoch: [%d]" % epoch)
@@ -904,7 +906,6 @@ class StyleGAN:
                     adv_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
 
                     self.__update_betas(kl_loss, [fixed_latent] + fixed_noise)
-                    self.loss.update_simp(epoch, epochs[current_depth])
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
                         elapsed = time.time() - global_time
