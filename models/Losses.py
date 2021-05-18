@@ -82,7 +82,7 @@ class GANLoss:
 
         print("REAL: ", [v.mean().item() for v in variances])
         # return [k.mean() for k in kl_list]
-        return [-v.mean() for v in variances]
+        return [torch.abs(1-v.mean()) for v in variances]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
