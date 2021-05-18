@@ -29,7 +29,7 @@ cfg.num_samples = 8
 cfg.feedback_factor = 10
 cfg.checkpoint_factor = 10
 cfg.update_encoder_as_discriminator = True
-cfg.use_sleep = True
+cfg.use_sleep = False
 cfg.use_adverserial = True
 cfg.use_vae = False
 
