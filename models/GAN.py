@@ -681,7 +681,7 @@ class StyleGAN:
         
         # optimize discriminator
         self.encoder_optim.zero_grad()
-        loss.backward()
+        dis_loss.backward()
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
         self.encoder_optim.step()
