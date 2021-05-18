@@ -110,7 +110,7 @@ class GANLoss:
             zvar = zsig.exp()
             diss_loss.append(zsig + (1.0 - self.simp) * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_noise[i] - zmean).pow(2.0))
 
-        return [s.mean() for d in diss_loss]
+        return [d.mean() for d in diss_loss]
 
 
         # return kl.mean().to(latent.device)
