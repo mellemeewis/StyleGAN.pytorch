@@ -765,6 +765,7 @@ class StyleGAN:
         
         gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction')   
         images = self.sample_images(gen_out, self.recon_loss)
+        print(images)
 
         z_recon, noise_recon = self.encoder(images, depth)
 
