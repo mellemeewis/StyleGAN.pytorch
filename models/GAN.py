@@ -780,7 +780,6 @@ class StyleGAN:
 
         adverserial_total.backward()
         for name, param in self.gen.named_parameters():
-            print(name, param)
             print(name, param.grad)
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         self.gen_optim.step()
