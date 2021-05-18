@@ -664,10 +664,11 @@ class StyleGAN:
         b = real_samples.size()[0]
         # generate a batch of samples
 
+        sample_z, sample_n = self.sample_latent(b, depth)
+        gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction').detach()
+        fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
+
         for i in range(5):
-            sample_z, sample_n = self.sample_latent(b, depth)
-            gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction').detach()
-            fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
 
             z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
             z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
