@@ -37,6 +37,7 @@ class GANLoss:
         epochs = total_epochs / 2
         grow = 1/ epochs
         self.simp = min(1, self.simp + grow)
+        print(self.simp)
 
     def dis_loss(self, real_samps, fake_samps, height, alpha):
         """
@@ -95,7 +96,7 @@ class GANLoss:
 
         return [s.mean() for s in sleep_loss]
 
-    def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise):
+    def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise, eps=1e-5):
         b,l = z_recon.size()
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
         zvar = zsig.exp() # variance
