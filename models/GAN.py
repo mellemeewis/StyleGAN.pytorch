@@ -391,7 +391,7 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep, use_adverserial, use_vae,
+    def __init__(self, structure, resolution, num_channels, latent_size, update_encoder_as_discriminator, use_sleep, use_adverserial, use_vae,
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace', drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
@@ -426,7 +426,7 @@ class StyleGAN:
         self.latent_size = latent_size
         self.device = device
         self.d_repeats = d_repeats
-        self.use_discriminator = use_discriminator
+        self.update_encoder_as_discriminator = update_encoder_as_discriminator
         self.use_sleep = use_sleep
         self.use_vae = use_vae
         self.use_adverserial = use_adverserial
@@ -649,7 +649,7 @@ class StyleGAN:
         # return the so computed real_samples
         return real_samples
 
-    def optimize_discriminator(self, latents, noise, real_batch, depth, alpha):
+    def update_encoder_as_discriminator(real_batch, depth, alpha):
         """
         performs one step of weight update on discriminator using the batch of data
 
@@ -661,30 +661,32 @@ class StyleGAN:
         """
 
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
-
-        loss_val = 0
+        b = real_samples.size()[0]
         for _ in range(self.d_repeats):
             # generate a batch of samples
-            fake_samples = self.gen(latents, noise, depth, alpha).detach()
 
-            loss = self.loss.dis_loss(real_samples, fake_samples, depth, alpha)
-            assert torch.isnan(loss).sum() == 0, f'Nans in dis Loss'
-            assert torch.isinf(loss).sum() == 0, f'Infs in dis Loss'
+            sample_z, sample_n = self.sample_latent(b, depth)
+            fake_samples = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction').detach()
+
+            z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
+            z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
+
+
+            real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
+            fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
+
+            dis_loss = real_loss.mean() + fake_loss.mean()
+
             # optimize discriminator
-            self.dis_optim.zero_grad()
+            self.encoder_optim.zero_grad()
             loss.backward()
-            nn.utils.clip_grad_norm_(self.dis.parameters(), max_norm=1.)
+            nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-            self.dis_optim.step()
-            for p in self.dis.parameters():
-                assert torch.isnan(p).sum() == 0, 'Nans in Disc'
-                assert torch.isinf(p).sum() == 0, 'Infs in Disc'
+            self.encoder_optim.step()
 
-            loss_val += loss.item()
+        return diss_loss
 
-        return loss_val / self.d_repeats
-
-    def vae_phase(self, z_distr, noise_distr, z, noise, real_batch, depth, alpha):
+    def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
         """
         performs one step of weight update on generator for the given batch_size
 
@@ -696,22 +698,18 @@ class StyleGAN:
         """
         # betas = self.betas
         betas=self.betas
-        b = real_batch.size()[0]
-        real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
-        recon_target = real_samples
+        b = images.size()[0]
+        recon_target = self.__progressive_down_sampling(images, depth, alpha)
+
+        z_distr, noise_distr = self.encoder(images, current_depth)
+        zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
 
         # generate reconstruction:
-        reconstruction = self.gen(z, noise, depth, alpha, mode='reconstruction')         
+        reconstruction = self.gen(zsample, noise_sample[::-1], depth, alpha, mode='reconstruction')         
 
         # Change this implementation for making it compatible for relativisticGAN
         recon_loss = self.loss.reconstruction_loss(reconstruction, recon_target)
         kl_loss = self.loss.kl_loss(z_distr, noise_distr)
-
-        if self.use_discriminator:
-            noise_detached = [n.detach() for n in noise]
-            reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
-            adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
-
 
         # loss = recon_loss + kl_loss + adverserial_loss if self.use_discriminator else recon_loss + kl_loss
         while len(kl_loss) < 7:
@@ -722,10 +720,7 @@ class StyleGAN:
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
         self.encoder_optim.zero_grad()
-        # for param in self.gen.parameters():
-        #     print(param.grad == None)
-        # for paam in self.encoder.parameters():
-        #     print(paam.grad == None)
+
         loss.backward()
         # Gradient Clipping
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
@@ -738,11 +733,7 @@ class StyleGAN:
         if self.use_ema:
             self.ema_updater(self.gen_shadow, self.gen, self.ema_decay)
 
-        # return the loss value
-        if self.use_discriminator:
-            return adverserial_loss.item(), kl_loss.item(), recon_loss.item()
-        # return 0, kl_loss.item(), recon_loss.item()
-        return 0, [round(k.item(),5) for k in kl_loss], recon_loss.item()
+        return [round(k.item(),5) for k in kl_loss], recon_loss.item()
 
     def sleep_phase(self, b, depth, alpha):
         sample_z, sample_n = self.sample_latent(b, depth)
@@ -786,6 +777,10 @@ class StyleGAN:
         nn.utils.clip_grad_norm_(self.gen.parameters(), max_norm=1.)
         self.gen_optim.step()
         return round(adverserial_total.item(), 3)
+
+        # noise_detached = [n.detach() for n in noise]
+        # reconstruction_style_mixing = self.gen(z.detach(), noise_detached, depth, alpha, mode='style_mixing')
+        # adverserial_loss = self.loss.gen_loss(real_samples, reconstruction_style_mixing, depth, alpha)
 
 
 
@@ -895,18 +890,14 @@ class StyleGAN:
                     if torch.cuda.is_available():
                         images = batch.cuda()
 
-                    z_distr, noise_distr = self.encoder(images, current_depth)
-
-                    zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z_distr, noise_distr)
-
                     if self.noise_channel_dropout:
                         noise_sample = [self.noise_channel_dropout(n) for n in noise_sample]
 
                     # optimize the discriminator:
-                    dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0
+                    dis_loss = self.update_encoder_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.vae_phase(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_vae else 0, 0, 0
+                    kl_loss, recon_loss = self.vae_phase(images, current_depth, alpha) if self.use_vae else 0, 0
 
 
                     sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
