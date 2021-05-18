@@ -688,7 +688,7 @@ class StyleGAN:
 
             self.encoder_optim.step()
             print(real_total.item(), fake_total.item())
-
+        print('\n\n')
         return dis_loss
 
     def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
