@@ -31,6 +31,12 @@ class GANLoss:
     def __init__(self, dis, recon_loss):
         self.dis = dis
         self.recon_loss = recon_loss
+        self.simp = 0
+
+    def.__update_simp(self, current_epoch, total_epochs):
+        epochs = total_epochs / 2
+        grow = 1/ epochs
+        self.simp = min(1, self.simp + grow)
 
     def dis_loss(self, real_samps, fake_samps, height, alpha):
         """
@@ -74,18 +80,32 @@ class GANLoss:
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
+        # b,l = z_recon.size()
+        # loc, scale = z_recon[:,:l//2], z_recon[:, l//2:].clamp(min=0.0001)
+        # distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
+        # sleep_loss = [-distribution.log_prob(target_z)]
+
+        # for i, n in enumerate(noise_recon):
+        #     if n is None:
+        #         continue
+        #     b, c, h, w = n.size()
+        #     loc, scale = n[:,:c//2:,:], n[:, c//2:,:,:].clamp(min=0.0001)
+        #     distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
+        #     sleep_loss.append(-distribution.log_prob(target_noise[i]))
+
+
         b,l = z_recon.size()
-        loc, scale = z_recon[:,:l//2], z_recon[:, l//2:].clamp(min=0.0001)
-        distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
-        sleep_loss = [-distribution.log_prob(target_z)]
+        zmean, zsig = output[:, :l//2], output[:, l//2:]
+        zvar = zsig.exp() # variance
+        sleep_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (rec_target - zmean).pow(2.0)]
 
         for i, n in enumerate(noise_recon):
             if n is None:
                 continue
-            b, c, h, w = n.size()
-            loc, scale = n[:,:c//2:,:], n[:, c//2:,:,:].clamp(min=0.0001)
-            distribution = torch.distributions.normal.Normal(loc, scale, validate_args=None)
-            sleep_loss.append(-distribution.log_prob(target_noise[i]))
+            b,c,h,w = n.size()
+            zmean, zsig = output[:, :l//2], output[:, l//2:]
+            zvar = zsig.exp()
+            sleep_loss.append(zsig + (1.0 - self.simp) * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (rec_target - zmean).pow(2.0))
 
         return [s.mean() for s in sleep_loss]
 

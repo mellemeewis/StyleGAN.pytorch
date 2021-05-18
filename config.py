@@ -31,6 +31,7 @@ cfg.checkpoint_factor = 10
 cfg.use_discriminator = False
 cfg.use_sleep = True
 cfg.use_adverserial = True
+cfg.use_vae = False
 
 cfg.noise_channel_dropout = 0.
 

@@ -391,7 +391,7 @@ class Discriminator(nn.Module):
 
 class StyleGAN:
 
-    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep, use_adverserial,
+    def __init__(self, structure, resolution, num_channels, latent_size, use_discriminator, use_sleep, use_adverserial, use_vae,
                  g_args, d_args, e_args, g_opt_args, d_opt_args, e_opt_args, loss="relativistic-hinge", recon_loss='siglaplace', drift=0.001,
                  d_repeats=1, use_ema=False, ema_decay=0.999, noise_channel_dropout=0.25, betas=[0.001,0.1,0.001,0.001,0.0005,0.0005,0.0005,5,1], device=torch.device("cpu")):
         """
@@ -428,6 +428,7 @@ class StyleGAN:
         self.d_repeats = d_repeats
         self.use_discriminator = use_discriminator
         self.use_sleep = use_sleep
+        self.use_vae = use_vae
         self.use_adverserial = use_adverserial
         self.noise_channel_dropout = nn.Dropout2d(p=noise_channel_dropout, inplace=False) if noise_channel_dropout>0 else None
         print(self.noise_channel_dropout)
@@ -475,6 +476,8 @@ class StyleGAN:
 
     def __update_betas(self, kl_loss=None, noise=None):
 
+        if self.use_vae == False:
+            return
         with torch.no_grad():
             # start = [i for i in self.betas]
             kl_betas = [i for i in  self.betas[:7]]
@@ -903,13 +906,14 @@ class StyleGAN:
                     dis_loss = self.optimize_discriminator(zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_discriminator else 0
 
                     # optimize the generator:
-                    adv_loss, kl_loss, recon_loss = self.vae_phase(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha)
+                    adv_loss, kl_loss, recon_loss = self.vae_phase(z_distr, noise_distr, zsample, noise_sample[::-1], images, current_depth, alpha) if self.use_vae else 0, 0, 0
 
-                    self.__update_betas(kl_loss, [zsample] + noise_sample)
 
                     sleep_loss = self.sleep_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_sleep else 0
-                    adverserial_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
-                    adv_loss=adverserial_loss
+                    adv_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
+
+                    self.__update_betas(kl_loss, [zsample] + noise_sample)
+                    self.loss.__update_simp(epoch, epochs[current_depth])
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
                         elapsed = time.time() - global_time
