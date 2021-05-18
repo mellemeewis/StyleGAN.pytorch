@@ -104,7 +104,7 @@ class GANLoss:
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
         
         zvar = zsig.exp() # variance
-        diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
+        # diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
         variances = [zvar]
         for i, n in enumerate(noise_recon):
@@ -113,11 +113,12 @@ class GANLoss:
             b,c,h,w = n.size()
             nmean, nsig = n[:,:c//2:,:], n[:, c//2:,:,:]
             nvar = nsig.exp()
-            diss_loss.append(nsig + self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
+            # diss_loss.append(nsig + self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
             variances.append(nvar)
 
         print("FAKE: ", [v.mean().item() for v in variances])
-        return [d.mean() for d in diss_loss]
+        # return [d.mean() for d in diss_loss]
+        return [v.mean() for v in variances]
 
 
         # return kl.mean().to(latent.device)
