@@ -903,6 +903,9 @@ class StyleGAN:
 
                     self.__update_betas(kl_loss, [fixed_latent] + fixed_noise)
                     print(self.loss)
+                    object_methods = [method_name for method_name in dir(self.loss) if callable(getattr(self.loss, method_name))]
+                    print(object_methods)
+
                     self.loss.__update_simp(epoch, epochs[current_depth])
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
