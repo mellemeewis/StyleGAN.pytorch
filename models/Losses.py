@@ -66,7 +66,6 @@ class GANLoss:
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
-        variances = [zlsig.exp()]
 
         kl = torch.clamp(kl, min=0.01)
         kl_list = [kl]
@@ -78,11 +77,28 @@ class GANLoss:
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
+        
+        return [k.mean() for k in kl_list]
+
+    def kl_alternative(self, latent, noise):
+        b, l = latent.size()
+        zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
+        variances = [zlsig.exp()]
+        means = [zmean]
+
+        for i, n in enumerate(noise):
+            if n is None:
+                continue
+
+            b, c, h, w = n.size()
+            mean = n[:, :c//2, :, :].view(b, -1)
+            sig = n[:, c//2:, :, :].view(b, -1)
+            means.append(mean)
             variances.append(sig.exp())
 
-        print("REAL: ", [v.mean().item() for v in variances])
+        print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
         # return [k.mean() for k in kl_list]
-        return [torch.abs(1-v.mean()).clamp(min=0.0001) for v in variances]
+        return [torch.abs(1-v.mean()) + torch.abs(0-m.mean()) for v, m in zip(variances, means)]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
