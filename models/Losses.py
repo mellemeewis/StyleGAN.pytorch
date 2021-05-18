@@ -65,7 +65,7 @@ class GANLoss:
 
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
-        print("REAL: ", zlsig.mean())
+        print("REAL: ", zlsig.exp().mean())
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
         kl = torch.clamp(kl, min=0.01)
@@ -100,7 +100,7 @@ class GANLoss:
     def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise, eps=1e-5):
         b,l = z_recon.size()
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
-        print("FAKE: ", zsig.mean())
+        print("FAKE: ", zsig.exp().mean())
         zvar = zsig.exp() # variance
         diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
