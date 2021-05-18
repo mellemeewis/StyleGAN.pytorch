@@ -902,6 +902,7 @@ class StyleGAN:
                     adv_loss = self.adverserial_phase(batch_sizes[current_depth], current_depth, alpha) if self.use_adverserial else 0
 
                     self.__update_betas(kl_loss, [fixed_latent] + fixed_noise)
+                    print(self.loss)
                     self.loss.__update_simp(epoch, epochs[current_depth])
                     # provide a loss feedback
                     if i % int(total_batches / feedback_factor + 1) == 0 or i == 1:
