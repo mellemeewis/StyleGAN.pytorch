@@ -649,7 +649,7 @@ class StyleGAN:
         # return the so computed real_samples
         return real_samples
 
-    def update_enc_as_discriminator(real_batch, depth, alpha):
+    def update_enc_as_discriminator(self, real_batch, depth, alpha):
         """
         performs one step of weight update on discriminator using the batch of data
 
