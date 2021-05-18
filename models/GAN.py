@@ -669,24 +669,23 @@ class StyleGAN:
         fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
 
 
-        for i in range(5):
-            z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
-            z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
+        z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
+        z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
 
-            print('\n')
-            real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
-            fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
+        print('\n')
+        real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
+        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
 
-            real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
-            fake_total = fake_loss[0] + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
-            dis_loss = real_total + fake_total
+        real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
+        fake_total = fake_loss[0] + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
+        dis_loss = real_total + fake_total
 
-            # optimize discriminator
-            self.encoder_optim.zero_grad()
-            dis_loss.backward()
-            nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
+        # optimize discriminator
+        self.encoder_optim.zero_grad()
+        dis_loss.backward()
+        nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-            self.encoder_optim.step()
+        self.encoder_optim.step()
         return dis_loss
 
     def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
