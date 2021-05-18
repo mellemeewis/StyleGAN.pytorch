@@ -79,8 +79,10 @@ class GANLoss:
             sig = n[:, c//2:, :, :].view(b, -1)
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
             variances.append(sig.exp())
+
         print("REAL: ", [v.mean().item() for v in variances])
-        return [k.mean() for k in kl_list]
+        # return [k.mean() for k in kl_list]
+        return [-v.mean() for v in variances]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
