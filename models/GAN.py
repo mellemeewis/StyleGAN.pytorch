@@ -674,15 +674,11 @@ class StyleGAN:
 
         real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
         fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
-        print(0)
-        print(real_loss)
-        print(torch.cat(real_loss))
-        print("WIE")
-        dis_loss = torch.sum(torch.cat(real_loss))
-        print(0)
-        dis_loss += torch.sum(torch.cat(fake_loss))#real_loss.mean() + fake_loss.mean()
 
-        print(0)
+        real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
+        fake_total = fake_loss[0] + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
+        dis_loss = real_total + fake_total
+        
         # optimize discriminator
         self.encoder_optim.zero_grad()
         loss.backward()
