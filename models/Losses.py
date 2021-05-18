@@ -97,7 +97,7 @@ class GANLoss:
 
     def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise):
         b,l = z_recon.size()
-        zmean, zsig = output[:, :l//2], output[:, l//2:]
+        zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
         zvar = zsig.exp() # variance
         diss_loss = [zsig + self.simp * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (rec_target - zmean).pow(2.0)]
 
@@ -105,7 +105,7 @@ class GANLoss:
             if n is None:
                 continue
             b,c,h,w = n.size()
-            zmean, zsig = output[:, :l//2], output[:, l//2:]
+            zmean, zsig = n[:,:c//2:,:], n[:, c//2:,:,:]
             zvar = zsig.exp()
             diss_loss.append(zsig + (1.0 - self.simp) * (1.0 / (2.0 * zvar.pow(2.0) + eps)) * (rec_target - zmean).pow(2.0))
 
