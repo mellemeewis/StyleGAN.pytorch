@@ -662,28 +662,27 @@ class StyleGAN:
 
         real_samples = self.__progressive_down_sampling(real_batch, depth, alpha)
         b = real_samples.size()[0]
-        for _ in range(self.d_repeats):
-            # generate a batch of samples
+        # generate a batch of samples
 
-            sample_z, sample_n = self.sample_latent(b, depth)
-            gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction').detach()
-            fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
+        sample_z, sample_n = self.sample_latent(b, depth)
+        gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction').detach()
+        fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
 
-            z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
-            z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
+        z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
+        z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
 
 
-            real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
-            fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
+        real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
+        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
 
-            dis_loss = torch.sum(torch.cat(real_loss)) + torch.sum(torch.cat(fake_loss))#real_loss.mean() + fake_loss.mean()
+        dis_loss = torch.sum(torch.cat(real_loss)) + torch.sum(torch.cat(fake_loss))#real_loss.mean() + fake_loss.mean()
 
-            # optimize discriminator
-            self.encoder_optim.zero_grad()
-            loss.backward()
-            nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
+        # optimize discriminator
+        self.encoder_optim.zero_grad()
+        loss.backward()
+        nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-            self.encoder_optim.step()
+        self.encoder_optim.step()
 
         return diss_loss
 
