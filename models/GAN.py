@@ -685,7 +685,7 @@ class StyleGAN:
         dis_loss.backward()
         nn.utils.clip_grad_norm_(self.encoder.parameters(), max_norm=1.)
 
-            self.encoder_optim.step()
+        self.encoder_optim.step()
         return dis_loss
 
     def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
