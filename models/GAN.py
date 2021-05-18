@@ -455,9 +455,9 @@ class StyleGAN:
         self.__setup_gen_optim(**g_opt_args)
         self.__setup_encoder_optim(**e_opt_args)
 
-        if self.use_discriminator:
-            self.dis = Discriminator(num_channels=num_channels, resolution=resolution, structure=self.structure, **d_args).to(self.device)
-            self.__setup_dis_optim(**d_opt_args)
+        # if self.use_discriminator:
+        #     self.dis = Discriminator(num_channels=num_channels, resolution=resolution, structure=self.structure, **d_args).to(self.device)
+        #     self.__setup_dis_optim(**d_opt_args)
 
         # define the loss function used for training the GAN
         self.drift = drift
@@ -715,7 +715,7 @@ class StyleGAN:
         while len(kl_loss) < 7:
             kl_loss.append(torch.tensor([0]).to(self.device))
         kl_total = kl_loss[0] * betas[0] + kl_loss[1] * betas[1] + kl_loss[2] * betas[2] + kl_loss[3] * betas[3] + kl_loss[4] * betas[4] + kl_loss[5] * betas[5] + kl_loss[6] * betas[6]
-        loss = betas[7] * recon_loss + kl_total + betas[8] * adverserial_loss if self.use_discriminator else betas[7] * recon_loss + kl_total
+        loss = betas[7] * recon_loss + kl_total
 
         # optimize the generator and encoder
         self.gen_optim.zero_grad()
@@ -839,7 +839,6 @@ class StyleGAN:
         # turn the generator and discriminator into train mode
         self.gen.train()
         self.encoder.train()
-        if self.use_discriminator: self.dis.train()
 
         if self.use_ema:
             self.gen_shadow.train()
@@ -958,28 +957,28 @@ class StyleGAN:
                         save_dir = os.path.join(output, 'models')
                         os.makedirs(save_dir, exist_ok=True)
                         gen_save_file = os.path.join(save_dir, "GAN_GEN_" + str(current_depth) + "_" + str(epoch) + ".pth")
-                        if self.use_discriminator:
-                            dis_save_file = os.path.join(save_dir, "GAN_DIS_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                        # if self.use_discriminator:
+                        #     dis_save_file = os.path.join(save_dir, "GAN_DIS_" + str(current_depth) + "_" + str(epoch) + ".pth")
                         enc_save_file = os.path.join(save_dir, "GAN_ENC_" + str(current_depth) + "_" + str(epoch) + ".pth")
 
                         gen_optim_save_file = os.path.join(
                             save_dir, "GAN_GEN_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
-                        if self.use_discriminator:
-                            dis_optim_save_file = os.path.join(
-                                save_dir, "GAN_DIS_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
+                        # if self.use_discriminator:
+                        #     dis_optim_save_file = os.path.join(
+                        #         save_dir, "GAN_DIS_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
                         enc_optim_save_file = os.path.join(
                             save_dir, "GAN_ENC_OPTIM_" + str(current_depth) + "_" + str(epoch) + ".pth")
 
 
                         logger.info("Saving the model to: %s\n" % gen_save_file)
                         torch.save(self.gen.state_dict(), gen_save_file)
-                        if self.use_discriminator:
-                            torch.save(self.dis.state_dict(), dis_save_file)
+                        # if self.use_discriminator:
+                        #     torch.save(self.dis.state_dict(), dis_save_file)
                         torch.save(self.encoder.state_dict(), dis_save_file)
 
                         torch.save(self.gen_optim.state_dict(), gen_optim_save_file)
-                        if self.use_discriminator:
-                            torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
+                        # if self.use_discriminator:
+                        #     torch.save(self.dis_optim.state_dict(), dis_optim_save_file)
                         torch.save(self.encoder_optim.state_dict(), dis_optim_save_file)
 
                         # also save the shadow generator if use_ema is True
