@@ -77,7 +77,7 @@ class GANLoss:
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
-        
+
         return [k.mean() for k in kl_list]
 
     def kl_alternative(self, latent, noise):
@@ -136,7 +136,7 @@ class GANLoss:
 
         print("FAKE: ", [v.mean().item() for v in variances])
         # return [d.mean() for d in diss_loss]
-        return [v.mean().clamp(min=0.00001) for v in variances]
+        return [v.mean().clamp(min=0.00001, max=10000) for v in variances]
 
 
         # return kl.mean().to(latent.device)
