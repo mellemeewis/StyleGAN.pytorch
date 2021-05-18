@@ -33,7 +33,7 @@ class GANLoss:
         self.recon_loss = recon_loss
         self.simp = 0
 
-    def.__update_simp(self, current_epoch, total_epochs):
+    def __update_simp(self, current_epoch, total_epochs):
         epochs = total_epochs / 2
         grow = 1/ epochs
         self.simp = min(1, self.simp + grow)
