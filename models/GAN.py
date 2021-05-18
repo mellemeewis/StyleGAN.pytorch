@@ -649,7 +649,7 @@ class StyleGAN:
         # return the so computed real_samples
         return real_samples
 
-    def update_encoder_as_discriminator(real_batch, depth, alpha):
+    def update_enc_as_discriminator(real_batch, depth, alpha):
         """
         performs one step of weight update on discriminator using the batch of data
 
@@ -892,7 +892,7 @@ class StyleGAN:
                         images = batch.cuda()
 
                     # optimize the discriminator:
-                    dis_loss = self.update_encoder_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
+                    dis_loss = self.update_enc_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
 
                     # optimize the generator:
                     kl_loss, recon_loss = self.vae_phase(images, current_depth, alpha) if self.use_vae else 0, 0
