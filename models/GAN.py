@@ -677,6 +677,7 @@ class StyleGAN:
 
         dis_loss = torch.sum(torch.cat(real_loss)) + torch.sum(torch.cat(fake_loss))#real_loss.mean() + fake_loss.mean()
 
+        print(0)
         # optimize discriminator
         self.encoder_optim.zero_grad()
         loss.backward()
@@ -684,6 +685,7 @@ class StyleGAN:
 
         self.encoder_optim.step()
 
+        print(0)
         return diss_loss
 
     def vae_phase(self, z_distr, noise_distr, z, noise, images, depth, alpha):
