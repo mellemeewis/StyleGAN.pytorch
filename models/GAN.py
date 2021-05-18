@@ -610,7 +610,7 @@ class StyleGAN:
             scale = image_distr[:, c//2:, :, :].clamp(min=0.001).view(b, -1)
 
             distribution = torch.distributions.laplace.Laplace(loc, scale, validate_args=None)
-            sample = distribution.sample(sample_shape=(n,))
+            sample = distribution.rsample(sample_shape=(n,))
             sample = torch.sigmoid(sample)
 
         return sample.view(b, c//2, h, w)
