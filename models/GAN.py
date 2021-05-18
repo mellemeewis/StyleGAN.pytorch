@@ -850,12 +850,12 @@ class StyleGAN:
 
         # create fixed_input for debugging
         fixed_latent = torch.randn(num_samples, self.latent_size).to(self.device)
-        fixed_noise = (torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
+        fixed_noise = [torch.randn(num_samples, 1, self.output_resolution//32, self.output_resolution//32).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//16, self.output_resolution//16).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//8, self.output_resolution//8).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//4, self.output_resolution//4).to(self.device),
                                 torch.randn(num_samples, 1, self.output_resolution//2, self.output_resolution//2).to(self.device),
-                                torch.randn(num_samples, 1, self.output_resolution, self.output_resolution).to(self.device))
+                                torch.randn(num_samples, 1, self.output_resolution, self.output_resolution).to(self.device)]
 
         # config depend on structure
         logger.info("Starting the training process ... \n")
