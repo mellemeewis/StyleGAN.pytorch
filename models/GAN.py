@@ -671,7 +671,7 @@ class StyleGAN:
 
         z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
         z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
-
+        print('\n')
         real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
         # real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
         fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)

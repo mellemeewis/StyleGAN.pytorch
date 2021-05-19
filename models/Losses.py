@@ -86,7 +86,7 @@ class GANLoss:
 
         print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
 
-        return [k.mean() for k in kl_list]
+        return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
 
     def kl_alternative(self, latent, noise):
         b, l = latent.size()
