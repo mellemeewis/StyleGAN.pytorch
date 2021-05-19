@@ -649,7 +649,7 @@ class StyleGAN:
         # return the so computed real_samples
         return real_samples
 
-    def update_enc_as_discriminator(self, real_batch, depth, alpha):
+    def update_enc_as_discriminator(self, real_batch, depth, alpha, print_=False):
         """
         performs one step of weight update on discriminator using the batch of data
 
@@ -672,9 +672,9 @@ class StyleGAN:
         z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
         z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
         print('\n')
-        real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
+        real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real, print_=print_)
         # real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
-        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
+        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n, print_=print_)
 
         real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
         fake_total = fake_loss[0] + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
@@ -877,6 +877,7 @@ class StyleGAN:
             data = get_data_loader(dataset, batch_sizes[current_depth], num_workers)
 
             for epoch in range(1, epochs[current_depth] + 1):
+                print_=True
                 self.loss.update_simp(epoch-1, epochs[current_depth])
 
                 start = timeit.default_timer()  # record time at the start of epoch
@@ -897,8 +898,8 @@ class StyleGAN:
                         images = batch.cuda()
 
                     # optimize the discriminator:
-                    dis_loss = self.update_enc_as_discriminator(images, current_depth, alpha) if self.update_encoder_as_discriminator else 0
-
+                    dis_loss = self.update_enc_as_discriminator(images, current_depth, alpha, print_=print_) if self.update_encoder_as_discriminator else 0
+                    print_=False
                     # optimize the generator:
                     kl_loss, recon_loss = self.vae_phase(images, current_depth, alpha) if self.use_vae else 0, 0
 

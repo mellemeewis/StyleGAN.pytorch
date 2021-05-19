@@ -61,7 +61,7 @@ class GANLoss:
         """
         raise NotImplementedError("gen_loss method has not been implemented")
 
-    def kl_loss(self, latent, noise):
+    def kl_loss(self, latent, noise, print_=False):
 
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
@@ -83,8 +83,8 @@ class GANLoss:
 
             means.append(mean)
             variances.append(sig.exp())
-
-        print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
+        if print_:
+            print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
 
         return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
 
@@ -125,7 +125,7 @@ class GANLoss:
 
         return [s.mean() for s in sleep_loss]
 
-    def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise, eps=1e-5):
+    def enc_as_dis_loss(self, z_recon, noise_recon, target_z, target_noise, eps=1e-5, print_=False):
         b,l = z_recon.size()
         zmean, zsig = z_recon[:, :l//2], z_recon[:, l//2:]
         
@@ -142,7 +142,8 @@ class GANLoss:
             loc_losses.append(self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
             variances.append(nvar)
 
-        print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])
+        if print_:
+            print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])
         # return [d.mean() for d in diss_loss]
         return [v.mean().clamp(min=0.00001, max=10000) + self.simp*lo.mean() for v, lo in zip(variances, loc_losses)]
 
