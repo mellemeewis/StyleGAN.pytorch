@@ -675,8 +675,8 @@ class StyleGAN:
         # real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
         fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n, print_=print_)
 
-        real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
-        fake_total = fake_loss[0] + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
+        real_total = real_loss[0]# + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
+        fake_total = fake_loss[0]# + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
         dis_loss = real_total + fake_total
 
         # optimize discriminator
@@ -770,7 +770,7 @@ class StyleGAN:
         # adverserial_loss = self.loss.kl_alternative(z_recon, noise_recon)
 
 
-        adverserial_total = adverserial_loss[0] * betas[0] + adverserial_loss[1] * betas[1] + adverserial_loss[2] * betas[2] + adverserial_loss[3] * betas[3] + adverserial_loss[4] * betas[4] + adverserial_loss[5] * betas[5] + adverserial_loss[6] * betas[6]
+        adverserial_total = adverserial_loss[0] * betas[0] #+ adverserial_loss[1] * betas[1] + adverserial_loss[2] * betas[2] + adverserial_loss[3] * betas[3] + adverserial_loss[4] * betas[4] + adverserial_loss[5] * betas[5] + adverserial_loss[6] * betas[6]
 
 
         self.encoder_optim.zero_grad()
