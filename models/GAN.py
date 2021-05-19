@@ -672,8 +672,8 @@ class StyleGAN:
         z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
         z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
 
-        # real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
-        real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
+        real_loss = self.loss.kl_loss(z_recon_real, noise_recon_real)
+        # real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
         fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n)
 
         real_total = real_loss[0] + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
@@ -767,8 +767,8 @@ class StyleGAN:
 
         z_recon, noise_recon = self.encoder(images, depth)
 
-        # adverserial_loss = self.loss.kl_loss(z_recon, noise_recon)        
-        adverserial_loss = self.loss.kl_alternative(z_recon, noise_recon)
+        adverserial_loss = self.loss.kl_loss(z_recon, noise_recon)        
+        # adverserial_loss = self.loss.kl_alternative(z_recon, noise_recon)
 
 
         adverserial_total = adverserial_loss[0] * betas[0] + adverserial_loss[1] * betas[1] + adverserial_loss[2] * betas[2] + adverserial_loss[3] * betas[3] + adverserial_loss[4] * betas[4] + adverserial_loss[5] * betas[5] + adverserial_loss[6] * betas[6]

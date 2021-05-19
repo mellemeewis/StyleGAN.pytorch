@@ -67,6 +67,9 @@ class GANLoss:
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
+        variances = [zlsig.exp()]
+        means = [zmean]
+
         kl = torch.clamp(kl, min=0.01)
         kl_list = [kl]
         for i, n in enumerate(noise):
@@ -77,6 +80,11 @@ class GANLoss:
             mean = n[:, :c//2, :, :].view(b, -1)
             sig = n[:, c//2:, :, :].view(b, -1)
             kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
+
+            means.append(mean)
+            variances.append(sig.exp())
+
+        print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
 
         return [k.mean() for k in kl_list]
 
@@ -134,7 +142,7 @@ class GANLoss:
             loc_losses.append(self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
             variances.append(nvar)
 
-        # print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])
+        print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])
         # return [d.mean() for d in diss_loss]
         return [v.mean().clamp(min=0.00001, max=10000) + self.simp*lo.mean() for v, lo in zip(variances, loc_losses)]
 
