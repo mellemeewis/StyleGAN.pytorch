@@ -61,7 +61,7 @@ class GANLoss:
         """
         raise NotImplementedError("gen_loss method has not been implemented")
 
-    def kl_loss(self, latent, noise, print_=False):
+    def kl_loss(self, latent, noise):
 
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
@@ -80,7 +80,7 @@ class GANLoss:
 
         return [k.mean() for k in kl_list]
 
-    def kl_discriminator(self, latent, noise):
+    def kl_discriminator(self, latent, noise, print_=False):
         
         b, l = latent.size()
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
