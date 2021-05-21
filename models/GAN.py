@@ -676,7 +676,7 @@ class StyleGAN:
         fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n, print_=print_)
 
         real_total = real_loss[0]# + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
-        fake_total = fake_loss[0]# + fake_loss[1] + fake_loss[2] + fake_loss[3] + fake_loss[4] + fake_loss[5] + fake_loss[6] 
+        fake_total = fake_loss[0] + 0.5*fake_loss[1] + 0.5*fake_loss[2] + 0.5*fake_loss[3] + 0.5*fake_loss[4] + 0.5*fake_loss[5] + 0.5*fake_loss[6] 
         dis_loss = real_total + fake_total
 
         # optimize discriminator
