@@ -35,8 +35,8 @@ class GANLoss:
 
     def update_simp(self, current_epoch, total_epochs):
         epochs = total_epochs / 2
-        grow = 0.25/ epochs
-        self.simp = min(0.25, self.simp + grow)
+        grow = 0/ epochs
+        self.simp = min(0, self.simp + grow)
         print(self.simp)
 
     def dis_loss(self, real_samps, fake_samps, height, alpha):
@@ -106,7 +106,7 @@ class GANLoss:
             print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means], [k.mean().item() for k in kl_list])
 
         return [k.mean() for k in kl_list]
-        return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
+        # return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
 
