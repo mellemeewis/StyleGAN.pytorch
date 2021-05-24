@@ -89,7 +89,7 @@ class GANLoss:
         variances = [zlsig]
         means = [zmean]
 
-        kl = torch.clamp(kl, min=0.01)
+        # kl = torch.clamp(kl, min=0.01)
         kl_list = [kl]
         # for i, n in enumerate(noise):
         #     if n is None:

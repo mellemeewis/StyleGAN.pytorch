@@ -67,7 +67,6 @@ class StyleEncoder(nn.Module):
 
     def forward(self, x0, depth):
         b = x0.size(0)
-
         n0 = n1 = n2 = n3 = n4 = n5 = None
 
         z0 = self.affine0(x0.view(b, -1))
