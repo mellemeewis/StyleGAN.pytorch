@@ -926,7 +926,7 @@ class StyleGAN:
 
                         with torch.no_grad():
 
-                            z = self.encoder(images, current_depth); _, noise_sample = self.sample_latent(b, depth) #z, noise = self.encoder(images, current_depth)
+                            z = self.encoder(images, current_depth); _, noise_sample = self.sample_latent(images.size()[0], depth) #z, noise = self.encoder(images, current_depth)
                             zsample = self.sample_latent_and_noise_from_encoder_output(z, None) #zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z, noise)      
                             reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
                             mix_fixed_noise = self.gen(zsample, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()

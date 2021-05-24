@@ -86,7 +86,7 @@ class GANLoss:
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
-        variances = [zlsig.pow(2)]
+        variances = [zlsig]
         means = [zmean]
 
         kl = torch.clamp(kl, min=0.01)
