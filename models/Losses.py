@@ -103,7 +103,7 @@ class GANLoss:
         #     means.append(mean)
         #     variances.append(sig.exp())
         if print_:
-            print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
+            print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means], [k.mean().item() for k in kl_list])
 
         return [k.mean() for k in kl_list]
         return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
@@ -133,6 +133,7 @@ class GANLoss:
         loc_losses = [(1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
         variances = [zsig]
+        means = [zmean]
         # for i, n in enumerate(noise_recon):
         #     if n is None:
         #         continue
@@ -143,7 +144,7 @@ class GANLoss:
         #     variances.append(nvar)
 
         if print_:
-            print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])
+            print("FAKE: ", [v.mean().item() for v in variances], [m.mean().item() for m in means], [lo.mean().item() for lo in loc_losses])
         # return [d.mean() for d in diss_loss]
         return [v.mean().clamp(min=0.00001, max=10000) + self.simp*lo.mean() for v, lo in zip(variances, loc_losses)]
 
