@@ -146,7 +146,7 @@ class GANLoss:
         if print_:
             print("FAKE: ", [v.mean().item() for v in variances], [m.mean().item() for m in means], [lo.mean().item() for lo in loc_losses])
         # return [d.mean() for d in diss_loss]
-        return [v.mean().clamp(min=0.00001, max=10000) + self.simp*lo.mean() for v, lo in zip(variances, loc_losses)]
+        return [v.mean().clamp(min=-1000, max=10000) + self.simp*lo.mean() for v, lo in zip(variances, loc_losses)]
 
 
         # return kl.mean().to(latent.device)
