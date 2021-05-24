@@ -543,6 +543,8 @@ class StyleGAN:
         eps = Variable(eps)
         zsample = zmean + eps * (zlsig * 0.5).exp()
 
+        if noise == None:
+            return zsample
         ## Sample noise
         sample_noise = []
         for n in noise:
@@ -669,14 +671,15 @@ class StyleGAN:
         fake_samples = self.sample_images(gen_out, self.recon_loss).detach()
 
 
-        z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
-        z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
-        real_loss = self.loss.kl_discriminator(z_recon_real, noise_recon_real, print_=print_)
-        # real_loss = self.loss.kl_alternative(z_recon_real, noise_recon_real)
-        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n, print_=print_)
+        z_recon_real = self.encoder(real_samples, depth)#z_recon_real, noise_recon_real = self.encoder(real_samples, depth)
+        z_recon_fake = self.encoder(fake_samples, depth)#z_recon_fake, noise_recon_fake = self.encoder(fake_samples, depth)
+
+
+        real_loss = self.loss.kl_discriminator(z_recon_real, None, print_=print_)#real_loss = self.loss.kl_discriminator(z_recon_real, noise_recon_real, print_=print_)
+        fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, None, sample_z, sample_n, print_=print_)#fake_loss = self.loss.enc_as_dis_loss(z_recon_fake, noise_recon_fake, sample_z, sample_n, print_=print_)
 
         real_total = real_loss[0]# + real_loss[1] + real_loss[2] + real_loss[3] + real_loss[4] + real_loss[5] + real_loss[6] 
-        fake_total = fake_loss[0] + 0.5*fake_loss[1] + 0.5*fake_loss[2] + 0.5*fake_loss[3] + 0.5*fake_loss[4] + 0.5*fake_loss[5] + 0.5*fake_loss[6] 
+        fake_total = fake_loss[0]# + 0.5*fake_loss[1] + 0.5*fake_loss[2] + 0.5*fake_loss[3] + 0.5*fake_loss[4] + 0.5*fake_loss[5] + 0.5*fake_loss[6] 
         dis_loss = real_total + fake_total
 
         # optimize discriminator
@@ -764,10 +767,9 @@ class StyleGAN:
         gen_out = self.gen(sample_z, sample_n[::-1], depth, alpha, mode='reconstruction')   
         images = self.sample_images(gen_out, self.recon_loss)
 
-        z_recon, noise_recon = self.encoder(images, depth)
+        z_recon, noise_recon = self.encoder(images, depth)#z_recon, noise_recon = self.encoder(images, depth)
 
-        adverserial_loss = self.loss.kl_discriminator(z_recon, noise_recon)        
-        # adverserial_loss = self.loss.kl_alternative(z_recon, noise_recon)
+        adverserial_loss = self.loss.kl_discriminator(z_recon, None)# adverserial_loss = self.loss.kl_discriminator(z_recon, noise_recon)        
 
 
         adverserial_total = adverserial_loss[0] * betas[0] #+ adverserial_loss[1] * betas[1] + adverserial_loss[2] * betas[2] + adverserial_loss[3] * betas[3] + adverserial_loss[4] * betas[4] + adverserial_loss[5] * betas[5] + adverserial_loss[6] * betas[6]
@@ -924,8 +926,8 @@ class StyleGAN:
 
                         with torch.no_grad():
 
-                            z, noise = self.encoder(images, current_depth)
-                            zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z, noise)      
+                            z = self.encoder(images, current_depth); _, noise_sample = self.sample_latent(b, depth) #z, noise = self.encoder(images, current_depth)
+                            zsample = self.sample_latent_and_noise_from_encoder_output(z, None) #zsample, noise_sample = self.sample_latent_and_noise_from_encoder_output(z, noise)      
                             reconstruction = self.gen(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, noise_sample[::-1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
                             mix_fixed_noise = self.gen(zsample, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(zsample, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()
                             fixed_reconstruction = self.gen(fixed_latent, fixed_noise[-current_depth-1:], current_depth, alpha)[:,:self.num_channels,:,:].detach() if not self.use_ema else self.gen_shadow(fixed_latent, fixed_noise[:current_depth+1], current_depth, alpha)[:,:self.num_channels,:,:].detach()

@@ -86,25 +86,26 @@ class GANLoss:
         zmean, zlsig = latent[:, :l//2], latent[:, l//2:]
         kl = 0.5 * torch.sum(zlsig.exp() - zlsig + zmean.pow(2) - 1, dim=1)
 
-        variances = [zlsig.exp()]
+        variances = [zlsig.pow(2)]
         means = [zmean]
 
         kl = torch.clamp(kl, min=0.01)
         kl_list = [kl]
-        for i, n in enumerate(noise):
-            if n is None:
-                continue
+        # for i, n in enumerate(noise):
+        #     if n is None:
+        #         continue
 
-            b, c, h, w = n.size()
-            mean = n[:, :c//2, :, :].view(b, -1)
-            sig = n[:, c//2:, :, :].view(b, -1)
-            kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
+        #     b, c, h, w = n.size()
+        #     mean = n[:, :c//2, :, :].view(b, -1)
+        #     sig = n[:, c//2:, :, :].view(b, -1)
+        #     kl_list.append(torch.clamp(0.5 * torch.sum(sig.exp() - sig + mean.pow(2) - 1, dim=1), min=0.01))
 
-            means.append(mean)
-            variances.append(sig.exp())
+        #     means.append(mean)
+        #     variances.append(sig.exp())
         if print_:
             print("REAL: ", [v.mean().item() for v in variances], [m.mean().item() for m in means])
 
+        return [k.mean() for k in kl_list]
         return [(1-self.simp)*torch.abs(1-v.mean()) + self.simp * k.mean() for v, k in zip(variances, kl_list)]
 
     def sleep_loss(self, z_recon, noise_recon, target_z, target_noise):
@@ -131,15 +132,15 @@ class GANLoss:
         zvar = zsig.exp() # variance
         loc_losses = [(1.0 / (2.0 * zvar.pow(2.0) + eps)) * (target_z - zmean).pow(2.0)]
 
-        variances = [zvar]
-        for i, n in enumerate(noise_recon):
-            if n is None:
-                continue
-            b,c,h,w = n.size()
-            nmean, nsig = n[:,:c//2:,:], n[:, c//2:,:,:]
-            nvar = nsig.exp()
-            loc_losses.append(self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
-            variances.append(nvar)
+        variances = [zsig]
+        # for i, n in enumerate(noise_recon):
+        #     if n is None:
+        #         continue
+        #     b,c,h,w = n.size()
+        #     nmean, nsig = n[:,:c//2:,:], n[:, c//2:,:,:]
+        #     nvar = nsig.exp()
+        #     loc_losses.append(self.simp * (1.0 / (2.0 * nvar.pow(2.0) + eps)) * (target_noise[i] - nmean).pow(2.0))
+        #     variances.append(nvar)
 
         if print_:
             print("FAKE: ", [v.mean().item() for v in variances], [lo.mean().item() for lo in loc_losses])

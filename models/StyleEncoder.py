@@ -72,7 +72,7 @@ class StyleEncoder(nn.Module):
 
         z0 = self.affine0(x0.view(b, -1))
         x0 = F.instance_norm(x0)
-        n0 = self.tonoise0(x0)
+        # n0 = self.tonoise0(x0)
 
         if depth <= 0:
             z=z0
@@ -82,7 +82,7 @@ class StyleEncoder(nn.Module):
         x1 = F.avg_pool2d(self.block1(x0), 2)
         z1 = self.affine1(x1.view(b, -1))
         x1 = F.instance_norm(x1)
-        n1 = self.tonoise1(x1)
+        # n1 = self.tonoise1(x1)
 
         if depth <= 1:
             zbatch = torch.cat([z0[:, None, :],z1[:, None, :]], dim=1)
@@ -96,7 +96,7 @@ class StyleEncoder(nn.Module):
         x2 = F.avg_pool2d(self.block2(x1), 2)
         z2 = self.affine2(x2.view(b, -1))
         x2 = F.instance_norm(x2)
-        n2 = self.tonoise2(x2)
+        # n2 = self.tonoise2(x2)
 
         if depth <= 2:
             zbatch = torch.cat([z0[:, None, :],z1[:, None, :],z2[:, None, :]], dim=1)
@@ -110,7 +110,7 @@ class StyleEncoder(nn.Module):
         x3 = F.avg_pool2d(self.block3(x2), 2)
         z3 = self.affine3(x3.view(b, -1))
         x3 = F.instance_norm(x3)
-        n3 = self.tonoise3(x3)
+        # n3 = self.tonoise3(x3)
 
         if depth <= 3:
             zbatch = torch.cat([z0[:, None, :],z1[:, None, :],z2[:, None, :], z3[:, None, :]], dim=1)
@@ -124,7 +124,7 @@ class StyleEncoder(nn.Module):
         x4 = F.avg_pool2d(self.block4(x3), 2)
         z4 = self.affine4(x4.view(b, -1))
         x4 = F.instance_norm(x4)
-        n4 = self.tonoise4(x4)
+        # n4 = self.tonoise4(x4)
 
         if depth <= 4:
             zbatch = torch.cat([z0[:, None, :],z1[:, None, :],z2[:, None, :], z3[:, None, :], z4[:, None, :]], dim=1)
@@ -138,7 +138,7 @@ class StyleEncoder(nn.Module):
         x5 = F.avg_pool2d(self.block5(x4), 2)
         z5 = self.affine5(x5.view(b, -1))
         x5 = F.instance_norm(x5)
-        n5 = self.tonoise5(x5)
+        # n5 = self.tonoise5(x5)
 
         # combine the z vectors
 
@@ -155,7 +155,8 @@ class StyleEncoder(nn.Module):
             z = zbatch   
         z = z.sum(dim=1)
         z = self.unmapping(z)
-        return z, (n0, n1, n2, n3, n4, n5)
+        return z
+        return #z, (n0, n1, n2, n3, n4, n5)
 
 def prod(xs):
     res = 1
